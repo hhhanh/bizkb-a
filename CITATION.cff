@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software or benchmark, please cite the paper below."
+title: "BizKB-A: reference implementation and benchmark"
+version: 0.5.0
+license: Apache-2.0
+repository-code: "https://github.com/ORG_OR_USER/bizkb-a"     # TODO: replace
+doi: "10.5281/zenodo.0000000"                                  # TODO: replace after the first release
+authors:
+  - family-names: Hoang
+    given-names: Hanh Huu
+    orcid: "https://orcid.org/0000-0000-0000-0000"             # TODO
+  # TODO: add co-authors
+preferred-citation:
+  type: conference-paper
+  title: "Ontology-Governed Orchestration of LLM Agent Networks: Admission Control, Verified Planning and Provenance over MCP and A2A"
+  authors:
+    - family-names: Hoang
+      given-names: Hanh Huu
+  conference:
+    name: "6th EAI International Conference on Artificial Intelligence for Communications and Networks (AICON 2026)"
+  collection-title: "Lecture Notes of the Institute for Computer Sciences, Social Informatics and Telecommunications Engineering"
+  publisher:
+    name: Springer
+  year: 2026

@@ -1,0 +1,140 @@
+{
+ "proposition_1": {
+  "delta": 0.58,
+  "empirical_threshold": 0.051,
+  "set_by": "com:ExecutePayment",
+  "constructed": {
+   "compliant_score": 0.74,
+   "trap_score": 0.996,
+   "gap": 0.256,
+   "gated_choice": "cx_compliant",
+   "weighted_choice": {
+    "0.10": "cx_trap",
+    "0.25": "cx_trap",
+    "0.26": "cx_compliant",
+    "0.30": "cx_compliant"
+   }
+  }
+ },
+ "latency": {
+  "all": {
+   "n": 255,
+   "p50": 164.6,
+   "p95": 511.4,
+   "max": 689.5
+  },
+  "curated": {
+   "n": 234,
+   "p50": 163.3,
+   "p95": 215.1,
+   "max": 268.8
+  },
+  "fallback": {
+   "n": 21,
+   "p50": 574.6,
+   "p95": 665.4,
+   "max": 689.5
+  },
+  "outcomes": {
+   "rejected_in_planning": 10,
+   "accepted": 158,
+   "rejected": 87
+  }
+ },
+ "breakdowns": {
+  "by_trap": {
+   "bizkba": {
+    "unattested": {
+     "captured": 0,
+     "exposed": 979
+    },
+    "no_authority": {
+     "captured": 0,
+     "exposed": 60
+    },
+    "wrong_data_class": {
+     "captured": 0,
+     "exposed": 88
+    }
+   },
+   "b2_sim": {
+    "unattested": {
+     "captured": 227,
+     "exposed": 952
+    },
+    "no_authority": {
+     "captured": 0,
+     "exposed": 60
+    },
+    "wrong_data_class": {
+     "captured": 0,
+     "exposed": 88
+    }
+   },
+   "b0_blind": {
+    "unattested": {
+     "captured": 892,
+     "exposed": 952
+    },
+    "no_authority": {
+     "captured": 60,
+     "exposed": 60
+    },
+    "wrong_data_class": {
+     "captured": 88,
+     "exposed": 88
+    }
+   }
+  },
+  "by_lang": {
+   "bizkba": {
+    "vi": {
+     "n": 170,
+     "goal_ok": 170,
+     "decision_ok": 170,
+     "steps": 837,
+     "bind_ok": 837
+    },
+    "en": {
+     "n": 85,
+     "goal_ok": 79,
+     "decision_ok": 85,
+     "steps": 401,
+     "bind_ok": 401
+    }
+   },
+   "b2_sim": {
+    "vi": {
+     "n": 170,
+     "goal_ok": 164,
+     "decision_ok": 78,
+     "steps": 828,
+     "bind_ok": 672
+    },
+    "en": {
+     "n": 85,
+     "goal_ok": 81,
+     "decision_ok": 33,
+     "steps": 379,
+     "bind_ok": 308
+    }
+   },
+   "b0_blind": {
+    "vi": {
+     "n": 170,
+     "goal_ok": 164,
+     "decision_ok": 72,
+     "steps": 828,
+     "bind_ok": 124
+    },
+    "en": {
+     "n": 85,
+     "goal_ok": 81,
+     "decision_ok": 25,
+     "steps": 379,
+     "bind_ok": 43
+    }
+   }
+  }
+ }
+}

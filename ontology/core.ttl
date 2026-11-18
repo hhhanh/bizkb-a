@@ -1,0 +1,86 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# ---- bka-core ----
+bka:Task       a owl:Class ; rdfs:label "Task"@en , "Tác vụ"@vi .
+bka:Goal       a owl:Class ; rdfs:subClassOf bka:Task ; rdfs:comment "Task concept users can request directly" .
+bka:Agent      a owl:Class .
+bka:Domain     a owl:Class .
+bka:DataClass  a owl:Class .
+bka:Authority  a owl:Class .
+bka:Method     a owl:Class ; rdfs:comment "HTN decomposition method (kế thừa process pattern của BizKB-BP)" .
+bka:Plan       a owl:Class .
+bka:PlanStep   a owl:Class .
+
+bka:PublicData    a bka:DataClass .
+bka:PersonalData  a bka:DataClass .
+bka:FinancialData a bka:DataClass .
+
+# ---- bka-aco: agent capability descriptors ----
+bka:provides          a owl:ObjectProperty ; rdfs:domain bka:Agent .
+bka:inDomain          a owl:ObjectProperty .
+bka:hasAuthority      a owl:ObjectProperty .
+bka:handlesDataClass  a owl:ObjectProperty .
+bka:trust             a owl:DatatypeProperty .
+bka:cost              a owl:DatatypeProperty .
+bka:protocol          a owl:DatatypeProperty ; rdfs:comment "local | a2a | mcp" .
+bka:endpoint          a owl:DatatypeProperty .
+
+# ---- task-level annotations (read by bka-norm) ----
+bka:requiresAuthority a owl:AnnotationProperty .
+bka:dataClass         a owl:AnnotationProperty .
+bka:riskTier          a owl:AnnotationProperty .
+bka:taskDomain        a owl:AnnotationProperty .
+
+# ---- HTN ----
+bka:decomposes a owl:ObjectProperty .
+bka:subtasks   a owl:ObjectProperty ; rdfs:comment "rdf:List of task classes, ordered" .
+bka:status     a owl:DatatypeProperty ; rdfs:comment "curated | proposed-by-llm" .
+
+# ---- plan graph ----
+bka:inPlan                a owl:ObjectProperty .
+bka:taskType              a owl:ObjectProperty .
+bka:boundAgent            a owl:ObjectProperty .
+bka:order                 a owl:DatatypeProperty .
+bka:requiresHumanApproval a owl:DatatypeProperty .
+bka:matchDegree           a owl:DatatypeProperty .
+
+# ---- v0.2: ủy quyền (delegation) - phạm trù pháp lý lõi ----
+bka:Mandate       a owl:Class ; rdfs:comment "Ủy quyền của chủ thể cho tác tử hành động thay mình" .
+bka:IntentMandate a owl:Class ; rdfs:subClassOf bka:Mandate ;
+  rdfs:comment "Ủy quyền trước, người dùng không có mặt (human-not-present); có hạn mức, danh mục, thời hạn" .
+bka:CartMandate   a owl:Class ; rdfs:subClassOf bka:Mandate ;
+  rdfs:comment "Ủy quyền cho một giỏ hàng cụ thể, người dùng có mặt (human-present)" .
+bka:hasMandate      a owl:ObjectProperty .
+bka:maxAmount       a owl:DatatypeProperty .
+bka:allowedCategory a owl:ObjectProperty .
+bka:expires         a owl:DatatypeProperty .
+bka:amount          a owl:DatatypeProperty .
+bka:merchant        a owl:ObjectProperty .
+bka:goodsCategory   a owl:ObjectProperty .
+bka:humanPresent    a owl:DatatypeProperty .
+
+# ---- v0.2: chứng thực descriptor (attestation) ----
+bka:TrustedIssuer a owl:Class ; rdfs:comment "Tổ chức được ủy quyền chứng thực descriptor tác tử" .
+bka:attestedBy    a owl:ObjectProperty .
+bka:descriptorStatus a owl:DatatypeProperty ; rdfs:comment "draft | attested" .
+bka:mcpTool       a owl:DatatypeProperty .
+
+bka:issuer_ndta a bka:TrustedIssuer ; rdfs:label "Cục Chuyển đổi số quốc gia (giả định cho demo)" .
+bka:needsField a owl:AnnotationProperty ; rdfs:comment "Giới hạn mục đích: trường dữ liệu tác vụ cần" .
+bka:disclosedField a owl:DatatypeProperty .
+
+# ---- v0.5: runtime conformance monitoring ----
+bka:Outcome           a owl:Class ; rdfs:comment "Kết quả quan sát được của một bước sau khi tác tử thực thi" .
+bka:suspended         a owl:DatatypeProperty ; rdfs:comment "Đặt bởi bộ giám sát khi tác tử vi phạm hiệu ứng khai báo" .
+bka:simBehaviour      a owl:DatatypeProperty ; rdfs:comment "Chỉ dùng cho mô phỏng/đánh giá: honest | overcharge | exfiltrate | phantom" .
+bka:chargedAmount     a owl:DatatypeProperty .
+bka:authorisedAmount  a owl:DatatypeProperty .
+bka:mandateCap        a owl:DatatypeProperty .
+bka:returnedField     a owl:DatatypeProperty .
+bka:outcomeStatus     a owl:DatatypeProperty .
+bka:outcomeRef        a owl:DatatypeProperty .
+bka:conformanceViolation a owl:DatatypeProperty .

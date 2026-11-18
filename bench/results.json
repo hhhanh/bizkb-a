@@ -1,0 +1,359 @@
+{
+ "eval": {
+  "n_requests": 300,
+  "systems": {
+   "bizkba": {
+    "goal_ok": 249,
+    "goal_n": 255,
+    "refuse_ok": 45,
+    "refuse_n": 45,
+    "bind_ok": 1238,
+    "bind_n": 1238,
+    "viol_plans": 87,
+    "viol_total": 101,
+    "plans": 245,
+    "decision_ok": 255,
+    "code_ok": 97,
+    "code_n": 97,
+    "hitl_ok": 28,
+    "hitl_n": 28,
+    "bind_viol": 0,
+    "bind_viol_plans": 0,
+    "errors": [
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     }
+    ]
+   },
+   "b3_nofb": {
+    "goal_ok": 249,
+    "goal_n": 255,
+    "refuse_ok": 45,
+    "refuse_n": 45,
+    "bind_ok": 1172,
+    "bind_n": 1172,
+    "viol_plans": 87,
+    "viol_total": 101,
+    "plans": 234,
+    "decision_ok": 244,
+    "code_ok": 87,
+    "code_n": 97,
+    "hitl_ok": 28,
+    "hitl_n": 28,
+    "bind_viol": 0,
+    "bind_viol_plans": 0,
+    "errors": [
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     }
+    ]
+   },
+   "b4_weights": {
+    "goal_ok": 249,
+    "goal_n": 255,
+    "refuse_ok": 45,
+    "refuse_n": 45,
+    "bind_ok": 1238,
+    "bind_n": 1238,
+    "viol_plans": 87,
+    "viol_total": 101,
+    "plans": 245,
+    "decision_ok": 255,
+    "code_ok": 97,
+    "code_n": 97,
+    "hitl_ok": 28,
+    "hitl_n": 28,
+    "bind_viol": 0,
+    "bind_viol_plans": 0,
+    "errors": [
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "same order again",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     },
+     {
+      "text": "reorder my previous purchase",
+      "gold": "ReorderLastPurchase",
+      "got": "PurchaseGoods"
+     }
+    ]
+   },
+   "b1_lex": {
+    "goal_ok": 245,
+    "goal_n": 255,
+    "refuse_ok": 0,
+    "refuse_n": 45,
+    "bind_ok": 1151,
+    "bind_n": 1414,
+    "viol_plans": 263,
+    "viol_total": 655,
+    "plans": 286,
+    "decision_ok": 111,
+    "code_ok": 97,
+    "code_n": 97,
+    "hitl_ok": 28,
+    "hitl_n": 28,
+    "bind_viol": 526,
+    "bind_viol_plans": 263,
+    "errors": [
+     {
+      "text": "buy infant formula for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy g\u1ea1o ST25 for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "order n\u01b0\u1edbc r\u1eeda tay",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "order n\u01b0\u1edbc r\u1eeda tay",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "buy s\u1eefa c\u00f4ng th\u1ee9c for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy hand soap for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy n\u01b0\u1edbc r\u1eeda tay for me",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "buy rice for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy g\u1ea1o ST25 for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy infant formula for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     }
+    ]
+   },
+   "b0_blind": {
+    "goal_ok": 245,
+    "goal_n": 255,
+    "refuse_ok": 0,
+    "refuse_n": 45,
+    "bind_ok": 185,
+    "bind_n": 1414,
+    "viol_plans": 286,
+    "viol_total": 594,
+    "plans": 286,
+    "decision_ok": 97,
+    "code_ok": 97,
+    "code_n": 97,
+    "hitl_ok": 28,
+    "hitl_n": 28,
+    "bind_viol": 465,
+    "bind_viol_plans": 286,
+    "errors": [
+     {
+      "text": "buy infant formula for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy g\u1ea1o ST25 for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "order n\u01b0\u1edbc r\u1eeda tay",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "order n\u01b0\u1edbc r\u1eeda tay",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "buy s\u1eefa c\u00f4ng th\u1ee9c for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy hand soap for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy n\u01b0\u1edbc r\u1eeda tay for me",
+      "gold": "PurchaseGoods",
+      "got": "ReorderLastPurchase"
+     },
+     {
+      "text": "buy rice for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy g\u1ea1o ST25 for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     },
+     {
+      "text": "buy infant formula for me",
+      "gold": "PurchaseGoods",
+      "got": "DelegatedPurchase"
+     }
+    ]
+   }
+  },
+  "llm_calls": {
+   "bizkba": 33,
+   "b1_lex": 57,
+   "b0_blind": 57,
+   "b3_nofb": 0,
+   "b4_weights": 33
+  },
+  "w5": {
+   "0.00": {
+    "admissible_bindings": 0,
+    "of": 4
+   },
+   "0.01": {
+    "admissible_bindings": 0,
+    "of": 4
+   },
+   "0.02": {
+    "admissible_bindings": 0,
+    "of": 4
+   },
+   "0.05": {
+    "admissible_bindings": 3,
+    "of": 4
+   },
+   "0.10": {
+    "admissible_bindings": 4,
+    "of": 4
+   },
+   "0.25": {
+    "admissible_bindings": 4,
+    "of": 4
+   }
+  }
+ },
+ "latency": {
+  "base": {
+   "triples": 1522,
+   "full": {
+    "p50": 203.5,
+    "p95": 286.4
+   },
+   "scoped": {
+    "p50": 186.8,
+    "p95": 212.1
+   }
+  },
+  "inflated": {
+   "triples": 51522,
+   "full": {
+    "p50": 1463.1,
+    "p95": 1576.2
+   },
+   "scoped": {
+    "p50": 186.0,
+    "p95": 192.8
+   }
+  }
+ },
+ "pipeline": {
+  "n": 36,
+  "p50": 180.8,
+  "p95": 257.5
+ }
+}

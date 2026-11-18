@@ -1,0 +1,11 @@
+{
+  "title": "BizKB-A: reference implementation and benchmark for ontology-governed orchestration of LLM agent networks",
+  "upload_type": "software",
+  "description": "Reference implementation, ontologies, SHACL norms and benchmark accompanying the AICON 2026 paper 'Ontology-Governed Orchestration of LLM Agent Networks: Admission Control, Verified Planning and Provenance over MCP and A2A'.",
+  "creators": [
+    {"name": "Hoang, Hanh Huu", "affiliation": "TODO", "orcid": "0000-0000-0000-0000"}
+  ],
+  "license": "Apache-2.0",
+  "keywords": ["LLM agents", "multi-agent orchestration", "ontology", "SHACL", "PROV-O", "MCP", "A2A", "agentic commerce"],
+  "version": "0.5.0"
+}

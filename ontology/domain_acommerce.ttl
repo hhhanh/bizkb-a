@@ -1,0 +1,116 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix com:  <https://ndta.gov.vn/ns/acommerce#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+com:CommerceDomain a bka:Domain ; rdfs:label "Thương mại tác tử (Agentic Commerce)"@vi .
+com:PaymentLicense   a bka:Authority ; rdfs:comment "Giấy phép trung gian thanh toán" .
+com:EInvoiceProvider a bka:Authority ; rdfs:comment "Tổ chức cung cấp dịch vụ hóa đơn điện tử" .
+com:issuer_ecom      a bka:TrustedIssuer ; rdfs:label "Cơ quan quản lý TMĐT (giả định cho demo)" .
+
+# ---------- Người bán & danh mục hàng hóa ----------
+com:Merchant a rdfs:Class .
+com:verified   a rdfs:Property .
+com:crossBorder a rdfs:Property .
+com:merchant_A a com:Merchant ; rdfs:label "Cửa hàng A (đã đăng ký TMĐT)" ; com:verified true ; com:crossBorder false .
+com:merchant_B a com:Merchant ; rdfs:label "Cửa hàng B (chưa đăng ký)" ; com:verified false ; com:crossBorder false .
+com:merchant_X a com:Merchant ; rdfs:label "Nền tảng X (xuyên biên giới)" ; com:verified true ; com:crossBorder true .
+
+com:GoodsCategory a rdfs:Class .
+com:prohibitedForAgents a rdfs:Property .
+com:Groceries   a com:GoodsCategory ; rdfs:label "Thực phẩm, nhu yếu phẩm" .
+com:Electronics a com:GoodsCategory ; rdfs:label "Điện tử" .
+com:PrescriptionDrugs a com:GoodsCategory ; rdfs:label "Thuốc kê đơn" ; com:prohibitedForAgents true .
+
+# ---------- Goals ----------
+com:PurchaseGoods rdfs:subClassOf bka:Goal ; bka:taskDomain com:CommerceDomain ;
+  skos:prefLabel "mua hàng"@vi ; skos:altLabel "đặt mua"@vi , "purchase"@en .
+com:DelegatedPurchase rdfs:subClassOf bka:Goal ; bka:taskDomain com:CommerceDomain ;
+  skos:prefLabel "mua tự động theo ủy quyền"@vi ;
+  skos:altLabel "tự động mua"@vi , "tự động đặt"@vi , "mua giúp khi"@vi , "delegated purchase"@en .
+com:ReturnAndRefund rdfs:subClassOf bka:Goal ; bka:taskDomain com:CommerceDomain ;
+  skos:prefLabel "trả hàng và hoàn tiền"@vi ; skos:altLabel "trả hàng"@vi , "hoàn tiền"@vi , "refund"@en .
+com:ReorderLastPurchase rdfs:subClassOf bka:Goal ; bka:taskDomain com:CommerceDomain ;
+  skos:prefLabel "mua lại đơn hàng trước"@vi ; skos:altLabel "đặt lại đơn"@vi , "mua lại"@vi , "reorder"@en .
+
+# ---------- Primitive tasks ----------
+com:SearchOffers rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:PublicData ; bka:riskTier 1 ; skos:prefLabel "tìm và so sánh chào hàng"@vi .
+com:VerifyMerchant rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:PublicData ; bka:riskTier 1 ; skos:prefLabel "xác minh người bán đã đăng ký"@vi .
+com:RetrieveOrderHistory rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:PersonalData ; bka:riskTier 1 ; skos:prefLabel "truy xuất lịch sử đơn hàng"@vi .
+com:ObtainPaymentMandate rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:FinancialData ; bka:riskTier 3 ; skos:prefLabel "lấy ủy quyền thanh toán của người dùng"@vi .
+com:ExecutePayment rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:requiresAuthority com:PaymentLicense ; bka:dataClass bka:FinancialData ; bka:riskTier 3 ;
+  skos:prefLabel "thực hiện thanh toán"@vi .
+com:ArrangeDelivery rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:PersonalData ; bka:riskTier 1 ; skos:prefLabel "sắp xếp giao hàng"@vi .
+com:ArrangeReturnPickup rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:dataClass bka:PersonalData ; bka:riskTier 1 ; skos:prefLabel "hẹn lấy hàng trả lại"@vi .
+com:ExecuteRefund rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:requiresAuthority com:PaymentLicense ; bka:dataClass bka:FinancialData ; bka:riskTier 2 ;
+  skos:prefLabel "hoàn tiền"@vi .
+com:IssueEInvoice rdfs:subClassOf bka:Task ; bka:taskDomain com:CommerceDomain ;
+  bka:requiresAuthority com:EInvoiceProvider ; bka:dataClass bka:FinancialData ; bka:riskTier 1 ;
+  skos:prefLabel "xuất hóa đơn điện tử"@vi .
+
+# ---------- HTN methods ----------
+com:M_Purchase a bka:Method ; bka:status "curated" ; bka:decomposes com:PurchaseGoods ;
+  bka:subtasks ( com:SearchOffers com:VerifyMerchant com:ObtainPaymentMandate com:ExecutePayment
+                 com:ArrangeDelivery com:IssueEInvoice ) .
+# Human-not-present: ủy quyền đã có sẵn (IntentMandate) -> không có bước xin ủy quyền
+com:M_DelegatedPurchase a bka:Method ; bka:status "curated" ; bka:decomposes com:DelegatedPurchase ;
+  bka:subtasks ( com:SearchOffers com:VerifyMerchant com:ExecutePayment com:ArrangeDelivery com:IssueEInvoice ) .
+com:M_ReturnAndRefund a bka:Method ; bka:status "curated" ; bka:decomposes com:ReturnAndRefund ;
+  bka:subtasks ( com:RetrieveOrderHistory com:ArrangeReturnPickup com:ExecuteRefund com:IssueEInvoice ) .
+
+# ---------- Agents ----------
+com:agent_shopping a bka:Agent ; bka:attestedBy com:issuer_ecom ; rdfs:label "Tác tử mua sắm" ;
+  bka:provides com:SearchOffers , com:RetrieveOrderHistory ; bka:inDomain com:CommerceDomain ;
+  bka:handlesDataClass bka:PublicData , bka:PersonalData ; bka:trust 0.85 ; bka:cost 0.2 ; bka:protocol "local" .
+com:agent_registry a bka:Agent ; bka:attestedBy com:issuer_ecom ; rdfs:label "Tác tử tra cứu đăng ký TMĐT" ;
+  bka:provides com:VerifyMerchant ; bka:inDomain com:CommerceDomain ;
+  bka:handlesDataClass bka:PublicData ; bka:trust 0.95 ; bka:cost 0.05 ; bka:protocol "local" .
+com:agent_wallet a bka:Agent ; bka:attestedBy com:issuer_ecom ; rdfs:label "Tác tử ví (trung gian thanh toán được cấp phép)" ;
+  bka:provides com:ObtainPaymentMandate , com:ExecutePayment , com:ExecuteRefund ; bka:inDomain com:CommerceDomain ;
+  bka:hasAuthority com:PaymentLicense ; bka:handlesDataClass bka:FinancialData , bka:PublicData ; bka:trust 0.95 ; bka:cost 0.4 ; bka:protocol "local" .
+# Có "giấy phép" tự khai nhưng KHÔNG được chứng thực -> bị loại (chống descriptor gian dối)
+com:agent_fake_licensed a bka:Agent ; rdfs:label "Tác tử thanh toán tự khai có phép" ;
+  bka:provides com:ExecutePayment ; bka:inDomain com:CommerceDomain ; bka:hasAuthority com:PaymentLicense ;
+  bka:handlesDataClass bka:FinancialData ; bka:trust 0.99 ; bka:cost 0.01 ; bka:protocol "local" .
+com:agent_rogue_pay a bka:Agent ; rdfs:label "Tác tử thanh toán không phép" ; bka:provides com:ExecutePayment ;
+  bka:inDomain com:CommerceDomain ; bka:handlesDataClass bka:FinancialData ; bka:trust 0.97 ; bka:cost 0.01 ; bka:protocol "local" .
+com:agent_logistics a bka:Agent ; bka:attestedBy com:issuer_ecom ; rdfs:label "Tác tử logistics" ;
+  bka:provides com:ArrangeDelivery , com:ArrangeReturnPickup ; bka:inDomain com:CommerceDomain ;
+  bka:handlesDataClass bka:PersonalData ; bka:trust 0.88 ; bka:cost 0.3 ; bka:protocol "local" .
+com:agent_einvoice a bka:Agent ; bka:attestedBy com:issuer_ecom ; rdfs:label "Tác tử hóa đơn điện tử" ;
+  bka:provides com:IssueEInvoice ; bka:inDomain com:CommerceDomain ; bka:hasAuthority com:EInvoiceProvider ;
+  bka:handlesDataClass bka:FinancialData ; bka:trust 0.9 ; bka:cost 0.2 ; bka:protocol "local" .
+
+# ---------- Giới hạn mục đích (purpose limitation): trường dữ liệu mỗi tác vụ được nhận ----------
+com:SearchOffers         bka:needsField "product" , "quantity" .
+com:VerifyMerchant       bka:needsField "merchant" .
+com:RetrieveOrderHistory bka:needsField "order_ref" .
+com:ObtainPaymentMandate bka:needsField "amount" , "card_token" .
+com:ExecutePayment       bka:needsField "amount" , "card_token" , "merchant" .
+com:ArrangeDelivery      bka:needsField "full_name" , "address" , "phone" .
+com:ArrangeReturnPickup  bka:needsField "full_name" , "address" , "phone" , "order_ref" .
+com:ExecuteRefund        bka:needsField "amount" , "card_token" , "order_ref" .
+com:IssueEInvoice        bka:needsField "amount" , "tax_code" , "full_name" .
+com:agent_einvoice bka:handlesDataClass bka:PersonalData .
+
+com:PurchaseGoods skos:prefLabel "purchase (user present)"@en ; skos:altLabel "buy"@en , "purchase"@en , "order"@en .
+com:DelegatedPurchase skos:prefLabel "delegated purchase (user absent)"@en ; skos:altLabel "automatically buy"@en , "auto-buy"@en , "buy when"@en , "delegated purchase"@en .
+com:ReturnAndRefund skos:prefLabel "return and refund"@en ; skos:altLabel "return"@en , "refund"@en .
+com:ReorderLastPurchase skos:prefLabel "reorder the previous purchase"@en ; skos:altLabel "reorder"@en , "buy again"@en .
+com:SearchOffers skos:prefLabel "search and compare offers"@en .
+com:VerifyMerchant skos:prefLabel "verify merchant registration"@en .
+com:RetrieveOrderHistory skos:prefLabel "retrieve order history"@en .
+com:ObtainPaymentMandate skos:prefLabel "obtain the user's payment authorisation"@en .
+com:ExecutePayment skos:prefLabel "execute payment"@en .
+com:ArrangeDelivery skos:prefLabel "arrange delivery"@en .
+com:ArrangeReturnPickup skos:prefLabel "schedule return pickup"@en .
+com:ExecuteRefund skos:prefLabel "refund the payment"@en .
+com:IssueEInvoice skos:prefLabel "issue e-invoice"@en .

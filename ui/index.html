@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BizKB-A — Governed agent orchestration demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF1F0; --sheet:#FFFFFF; --ink:#1B2A41; --ink-2:#4A5B70; --ink-3:#7D8B9B;
+  --rule:#D5DCDF; --indigo:#26457A; --indigo-soft:#E4EAF4;
+  --ok:#2D6A4F; --ok-soft:#E3F0E8; --bad:#A12F2F; --bad-soft:#F6E3E1;
+  --wait:#9A6A12; --wait-soft:#F7EDD7; --focus:#3B6FD1;
+  --sans:"Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161D; --sheet:#18202A; --ink:#E6ECF2; --ink-2:#A9B6C4; --ink-3:#7C8A99;
+    --rule:#2B3542; --indigo:#8FB0E8; --indigo-soft:#1F2C42;
+    --ok:#7CC49E; --ok-soft:#18302A; --bad:#F08A80; --bad-soft:#3A1F1F;
+    --wait:#E2B55B; --wait-soft:#3A2F17; --focus:#8FB0E8;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161D; --sheet:#18202A; --ink:#E6ECF2; --ink-2:#A9B6C4; --ink-3:#7C8A99;
+  --rule:#2B3542; --indigo:#8FB0E8; --indigo-soft:#1F2C42;
+  --ok:#7CC49E; --ok-soft:#18302A; --bad:#F08A80; --bad-soft:#3A1F1F;
+  --wait:#E2B55B; --wait-soft:#3A2F17; --focus:#8FB0E8;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+
+header{border-bottom:1px solid var(--rule);background:var(--sheet)}
+.wrap.bar{display:flex;align-items:center;gap:16px;padding:14px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;flex:1;min-width:240px}
+.brand h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-0.01em}
+.brand p{margin:0;color:var(--ink-2);font-size:14px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;background:var(--paper)}
+.seg button{border:0;background:transparent;padding:5px 14px;border-radius:999px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--indigo);color:var(--sheet)}
+nav.tabs{display:flex;gap:4px}
+nav.tabs button{border:0;background:transparent;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--ink-2);font-weight:500}
+nav.tabs button[aria-selected="true"]{background:var(--indigo-soft);color:var(--indigo)}
+
+.intro{padding:22px 0 8px;max-width:78ch}
+.intro h2{font-size:26px;line-height:1.25;margin:0 0 8px;font-weight:700;letter-spacing:-0.015em}
+.intro p{margin:0;color:var(--ink-2)}
+
+.grid{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:20px;padding:16px 0 40px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.grid>*,.stage,.stage-b{min-width:0}
+@media (max-width:600px){th:nth-child(5),td:nth-child(5){display:none}.excl{font-size:12px}}
+
+.panel{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.panel h3{margin:0 0 10px;font-size:16px;font-weight:700}
+.muted{color:var(--ink-3);font-size:13px}
+.scen-group{margin:0 0 10px}
+.scen-group h4{margin:10px 0 6px;font-size:13px;font-weight:500;color:var(--ink-2)}
+.scen{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:7px 10px;margin:0 0 6px;cursor:pointer}
+.scen:hover{border-color:var(--indigo)}
+.scen[aria-pressed="true"]{border-color:var(--indigo);background:var(--indigo-soft)}
+.scen b{font-weight:500;color:var(--indigo);margin-right:6px}
+.scen span{font-size:14px}
+label.f{display:block;font-size:13px;color:var(--ink-2);margin:10px 0 4px}
+textarea,input[type=number],input[type=text],select{width:100%;border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:8px 10px}
+textarea{min-height:64px;resize:vertical}
+fieldset{border:1px solid var(--rule);border-radius:8px;margin:12px 0 0;padding:6px 12px 12px}
+legend{font-size:13px;font-weight:500;padding:0 6px;color:var(--ink-2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14px}
+.cats{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:4px;font-size:14px}
+.cats label{display:flex;gap:5px;align-items:center}
+.run{margin-top:14px;width:100%;border:0;background:var(--indigo);color:var(--sheet);font-weight:700;padding:11px;border-radius:8px;cursor:pointer;font-size:15px}
+.run:hover{filter:brightness(1.08)}
+.note{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+
+/* ledger */
+.ledger{display:flex;flex-direction:column;gap:14px}
+.empty{padding:40px 20px;text-align:center;color:var(--ink-2)}
+.stage{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.stage-h{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.stage-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--indigo-soft);color:var(--indigo);flex:none}
+.stage-h h3{margin:0;font-size:16px;flex:1}
+.pill{font-size:12.5px;font-weight:500;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.wait{background:var(--wait-soft);color:var(--wait)} .pill.skip{background:var(--paper);color:var(--ink-3)}
+.stage-b{padding:12px 16px}
+.stage.skipped .stage-b{color:var(--ink-3)}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:14px}
+.kv dt{color:var(--ink-2)} .kv dd{margin:0}
+.loglist{margin:0;padding-left:18px;font-size:14px}
+.loglist li{margin:3px 0}
+.loglist .rej{color:var(--bad)} .loglist .acc{color:var(--ok)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:500;color:var(--ink-2);font-size:13px}
+.deg{font-size:12px;padding:1px 7px;border-radius:4px;background:var(--indigo-soft);color:var(--indigo)}
+.excl{color:var(--bad);font-size:13px;margin-top:3px}
+.excl s{color:var(--ink-3)}
+
+/* norm seals — the one bold element */
+.seals{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.seal{border:1.5px solid var(--rule);border-radius:8px;padding:8px 10px;background:var(--sheet);min-height:64px;position:relative}
+.seal .code{font-weight:700;font-size:15px;letter-spacing:.02em}
+.seal .t{font-size:12.5px;color:var(--ink-2);line-height:1.35}
+.seal.pass{border-color:var(--ok);}
+.seal.pass .code{color:var(--ok)}
+.seal.fail{border-color:var(--bad);background:var(--bad-soft)}
+.seal.fail .code{color:var(--bad)}
+.seal.fail::after{content:"";position:absolute;top:8px;right:9px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bad)}
+.seal.na{opacity:.5}
+@media (prefers-reduced-motion:no-preference){
+  .seal.fail{animation:stamp .35s ease-out both}
+  @keyframes stamp{0%{transform:scale(1.08);opacity:0}100%{transform:scale(1);opacity:1}}
+}
+.viol{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--bad);background:var(--bad-soft);border-radius:0;font-size:14px}
+
+.exec-step{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.exec-step:last-child{border-bottom:0}
+.exec-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--rule);margin-top:2px}
+.exec-step.done .exec-dot{border-color:var(--ok);background:var(--ok)}
+.exec-step.denied .exec-dot{border-color:var(--bad);background:var(--bad)}
+.exec-step.waiting .exec-dot{border-color:var(--wait)}
+.exec-title{font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.chip{font-size:12px;padding:2px 8px;border-radius:4px;border:1px solid var(--rule);color:var(--ink-2)}
+.chip.withheld{text-decoration:line-through;color:var(--ink-3)}
+.hitl{margin-top:8px;padding:10px 12px;background:var(--wait-soft);border-radius:8px}
+.hitl p{margin:0 0 8px;font-size:14px;color:var(--wait)}
+.btn{border:1px solid var(--rule);background:var(--sheet);padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:500;margin-right:6px}
+.btn.primary{background:var(--ok);border-color:var(--ok);color:var(--sheet)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+details{margin-top:4px}
+summary{cursor:pointer;font-weight:500;color:var(--indigo)}
+pre.ttl{font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:12px;overflow-x:auto;max-height:420px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp{border:1px solid var(--rule);border-radius:8px;padding:10px 12px}
+.cmp h4{margin:0 0 4px;font-size:14px}
+.cmp .big{font-size:28px;font-weight:700}
+.cmp.bad .big{color:var(--bad)} .cmp.ok .big{color:var(--ok)}
+
+/* KB tab */
+.kbgrid{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 0 40px}
+.badge{font-size:12px;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.badge.att{background:var(--ok-soft);color:var(--ok)} .badge.trap{background:var(--bad-soft);color:var(--bad)}
+.badge.draft{background:var(--wait-soft);color:var(--wait)}
+footer{border-top:1px solid var(--rule);padding:16px 0 28px;color:var(--ink-3);font-size:13px}
+.hide{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <div class="brand"><h1>BizKB-A</h1><p data-i="tagline"></p></div>
+    <span id="mode" class="badge att" title=""></span>
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tab-run" aria-selected="true" data-i="tabRun"></button>
+      <button role="tab" id="tab-kb" aria-selected="false" data-i="tabKb"></button>
+    </nav>
+    <div class="seg" role="group" aria-label="Language">
+      <button id="lang-en" aria-pressed="true">EN</button>
+      <button id="lang-vi" aria-pressed="false">VI</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-run">
+    <div class="intro"><h2 data-i="introH"></h2><p data-i="introP"></p></div>
+    <div class="grid">
+      <aside class="panel" aria-labelledby="req-h">
+        <h3 id="req-h" data-i="reqH"></h3>
+        <div id="scenarios"></div>
+        <label class="f" for="req" data-i="reqLabel"></label>
+        <textarea id="req"></textarea>
+        <fieldset id="ctxset">
+          <legend data-i="ctxLegend"></legend>
+          <p class="muted" data-i="ctxHint" style="margin:2px 0 0"></p>
+          <div class="row2">
+            <div><label class="f" for="amount" data-i="amount"></label><input id="amount" type="number" min="0" step="10000"></div>
+            <div><label class="f" for="merchant" data-i="merchant"></label><select id="merchant"></select></div>
+          </div>
+          <label class="f" for="category" data-i="category"></label><select id="category"></select>
+          <label class="chk"><input type="checkbox" id="hasMandate"> <span data-i="mandateOn"></span></label>
+          <div id="mandateBox">
+            <div class="row2">
+              <div><label class="f" for="cap" data-i="cap"></label><input id="cap" type="number" min="0" step="10000"></div>
+              <div><label class="f" for="validDays" data-i="validDays"></label><input id="validDays" type="number" step="1"></div>
+            </div>
+            <label class="f" data-i="allowedCats"></label>
+            <div class="cats" id="mandCats"></div>
+          </div>
+        </fieldset>
+        <label class="chk"><input type="checkbox" id="compare" checked> <span data-i="compareLbl"></span></label>
+        <button class="run" id="runBtn" data-i="runBtn"></button>
+        <p class="note" data-i="note"></p>
+      </aside>
+      <section class="ledger" id="ledger" aria-live="polite"></section>
+    </div>
+  </section>
+
+  <section id="view-kb" class="hide">
+    <div class="intro"><h2 data-i="kbH"></h2><p data-i="kbP"></p></div>
+    <div class="kbgrid">
+      <div class="panel"><h3 data-i="agentsH"></h3><div class="tbl-wrap"><table id="agentsTbl"></table></div></div>
+      <div class="panel"><h3 data-i="normsH"></h3><div class="seals" id="normsAll"></div></div>
+      <div class="panel">
+        <h3 data-i="annotH"></h3>
+        <p class="muted" data-i="annotP"></p>
+        <pre class="ttl" id="cardJson"></pre>
+        <button class="btn primary" id="annotBtn" data-i="annotBtn"></button>
+        <div id="annotOut"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap" data-i="footer"></div></footer>
+
+<script>
+/* ======================= i18n ======================= */
+const T = {
+ en:{
+  tagline:"Ontology-governed orchestration of AI agents",
+  modeLive:"Live engine", modeLocal:"Browser demo", modeLiveT:"Running on the reference implementation: rdflib + pySHACL", modeLocalT:"Norms re-implemented in JavaScript; no server", llmReal:"real LLM", llmScript:"scripted LLM", engineErr:"The live engine did not answer. Check the server log.",
+  tabRun:"Run a request", tabKb:"Knowledge base",
+  introH:"Watch a request pass through five checkpoints before any agent acts",
+  introP:"Pick a scenario or type your own request. BizKB-A grounds it in the ontology, plans it, binds only permitted agents, checks the whole plan against legal norms, then executes with a provenance trace. The LLM proposes; the ontology decides.",
+  reqH:"Request", reqLabel:"Request text", ctxLegend:"Transaction context (commerce only)",
+  ctxHint:"Used by the commerce norms. Ignored for public-service requests.",
+  amount:"Amount (VND)", merchant:"Merchant", category:"Goods category",
+  mandateOn:"User has issued an intent mandate (buy on my behalf)", cap:"Spending cap (VND)", validDays:"Valid for (days)",
+  allowedCats:"Allowed categories", compareLbl:"Also run a policy-blind router for comparison",
+  runBtn:"Run orchestration", note:"Browser demo: norms are re-implemented in JavaScript to mirror the SHACL shapes of the reference implementation. LLM proposals are replayed from a fixed script for reproducibility.",
+  gPublic:"Public services", gCommerce:"Agentic commerce", gOther:"Out of scope",
+  s1:"Grounding", s2:"Decomposition", s3:"Agent binding", s4:"Norm verification", s5:"Execution", s6:"Provenance",
+  done:"Done", rejected:"Rejected", halted:"Halted", waiting:"Awaiting approval", skipped:"Not reached", completed:"Completed",
+  emptyP:"Choose a scenario on the left and select Run orchestration.",
+  goal:"Goal concept", domain:"Domain", matched:"Matched label", noGround:"No goal concept in the ontology matches this request. BizKB-A refuses rather than guessing.",
+  method:"Method", curated:"curated", proposed:"proposed by LLM, queued for expert review",
+  llmTry:"LLM proposal", accepted:"admitted", rejectedBy:"rejected by",
+  noMethod:"No curated method exists for this goal, so the planner asked the LLM for a decomposition.",
+  thStep:"#", thTask:"Task", thAgent:"Bound agent", thDeg:"Match", thScore:"Score", thHitl:"Human approval",
+  yes:"Required", no:"—", excluded:"Excluded",
+  r_draft:"descriptor is still a draft", r_attest:"descriptor not attested by a trusted issuer",
+  r_deg:"match below plug-in", r_auth:"lacks required authority", r_dc:"not permitted to process",
+  unbindable:"No permitted agent can perform this task.",
+  allPass:"All applicable norms pass. The plan may execute.", someFail:"The plan violates the norms below and will not execute.",
+  planLevel:"plan", stepLbl:"step",
+  approveQ:"This step carries legal or financial risk. Approve on behalf of the user?",
+  approve:"Approve", decline:"Decline", approvedBy:"approved by user", declinedMsg:"Declined by user. Execution stopped; no later step ran.",
+  sent:"Data sent", withheld:"withheld",
+  provP:"Each step is recorded as a PROV-O activity linked to the agent and to the person it acted for. Disclosed field names are recorded; values are not.",
+  showTtl:"Show Turtle trace",
+  cmpH:"Same plan, policy-blind router", cmpBase:"Policy-blind router", cmpUs:"BizKB-A", viols:"norm violations",
+  cmpNote:"The policy-blind router picks the agent with the best trust minus cost among those advertising the capability, with no gates.",
+  kbH:"What the orchestrator knows", kbP:"Agents are described by semantic descriptors. Only descriptors signed by a trusted issuer can be bound. Two commerce agents and one public-service agent are deliberate traps.",
+  agentsH:"Agent registry", normsH:"Norm register", thProvides:"Provides", thAuth:"Authority", thData:"Data classes", thTrust:"Trust", thCost:"Cost", thStatus:"Status",
+  attested:"Attested", trap:"Trap", draft:"Draft",
+  annotH:"Draft a descriptor from an A2A Agent Card", annotP:"The machine maps skills to task concepts. Authority, data classes, trust and the signature must come from a human expert and the issuer.",
+  annotBtn:"Draft descriptor", mapped:"mapped automatically", unmapped:"needs manual modelling", needsHuman:"Still required from humans",
+  nh:["legal authority","permitted data classes","trust level","issuer signature"],
+  footer:"BizKB-A reference demo · builds on BizKB (ICCCI 2009). Norms shown are illustrative models, not legal rules in force.",
+  dPublic:"Cross-agency public services", dCommerce:"Agentic commerce"
+ },
+ vi:{
+  tagline:"Điều phối tác tử AI dựa trên ontology",
+  modeLive:"Engine thật", modeLocal:"Demo trình duyệt", modeLiveT:"Đang chạy trên bản tham chiếu: rdflib + pySHACL", modeLocalT:"Chuẩn tắc viết lại bằng JavaScript, không có máy chủ", llmReal:"LLM thật", llmScript:"LLM kịch bản", engineErr:"Engine thật không phản hồi. Kiểm tra nhật ký máy chủ.",
+  tabRun:"Chạy yêu cầu", tabKb:"Kho tri thức",
+  introH:"Theo dõi một yêu cầu đi qua năm chốt kiểm soát trước khi bất kỳ tác tử nào hành động",
+  introP:"Chọn một kịch bản hoặc tự nhập yêu cầu. BizKB-A neo yêu cầu vào ontology, lập kế hoạch, chỉ gán tác tử được phép, kiểm tra toàn bộ kế hoạch theo chuẩn tắc pháp lý, rồi thực thi kèm truy vết. LLM đề xuất; ontology quyết định.",
+  reqH:"Yêu cầu", reqLabel:"Nội dung yêu cầu", ctxLegend:"Ngữ cảnh giao dịch (chỉ cho thương mại)",
+  ctxHint:"Dùng cho các chuẩn tắc thương mại. Không áp dụng với yêu cầu dịch vụ công.",
+  amount:"Số tiền (VND)", merchant:"Người bán", category:"Danh mục hàng hóa",
+  mandateOn:"Người dùng đã cấp ủy quyền trước (mua thay tôi)", cap:"Hạn mức (VND)", validDays:"Hiệu lực (ngày)",
+  allowedCats:"Danh mục được phép", compareLbl:"Chạy thêm bộ định tuyến không xét chính sách để so sánh",
+  runBtn:"Chạy điều phối", note:"Bản demo trên trình duyệt: các chuẩn tắc được viết lại bằng JavaScript, tương đương các SHACL shape của bản tham chiếu. Đề xuất của LLM được phát lại từ kịch bản cố định để bảo đảm tái lập.",
+  gPublic:"Dịch vụ công", gCommerce:"Thương mại tác tử", gOther:"Ngoài phạm vi",
+  s1:"Neo khái niệm", s2:"Phân rã tác vụ", s3:"Gán tác tử", s4:"Kiểm chứng chuẩn tắc", s5:"Thực thi", s6:"Truy vết",
+  done:"Xong", rejected:"Bác bỏ", halted:"Đã dừng", waiting:"Chờ phê duyệt", skipped:"Chưa tới", completed:"Hoàn thành",
+  emptyP:"Chọn một kịch bản ở bên trái và bấm Chạy điều phối.",
+  goal:"Khái niệm mục tiêu", domain:"Miền", matched:"Nhãn khớp", noGround:"Không có khái niệm mục tiêu nào trong ontology khớp với yêu cầu. BizKB-A từ chối thay vì phỏng đoán.",
+  method:"Phương thức", curated:"đã tuyển chọn", proposed:"do LLM đề xuất, chờ chuyên gia duyệt",
+  llmTry:"Đề xuất của LLM", accepted:"được chấp nhận", rejectedBy:"bị bác bởi",
+  noMethod:"Mục tiêu này chưa có phương thức được tuyển chọn, nên bộ lập kế hoạch yêu cầu LLM đề xuất cách phân rã.",
+  thStep:"#", thTask:"Tác vụ", thAgent:"Tác tử được gán", thDeg:"Mức khớp", thScore:"Điểm", thHitl:"Phê duyệt",
+  yes:"Bắt buộc", no:"—", excluded:"Bị loại",
+  r_draft:"descriptor còn ở dạng nháp", r_attest:"descriptor chưa được tổ chức tin cậy chứng thực",
+  r_deg:"mức khớp dưới plug-in", r_auth:"thiếu thẩm quyền bắt buộc", r_dc:"không được phép xử lý",
+  unbindable:"Không có tác tử nào được phép thực hiện tác vụ này.",
+  allPass:"Mọi chuẩn tắc áp dụng đều đạt. Kế hoạch được phép thực thi.", someFail:"Kế hoạch vi phạm các chuẩn tắc dưới đây và sẽ không được thực thi.",
+  planLevel:"kế hoạch", stepLbl:"bước",
+  approveQ:"Bước này có rủi ro pháp lý hoặc tài chính. Phê duyệt thay mặt người dùng?",
+  approve:"Phê duyệt", decline:"Từ chối", approvedBy:"người dùng đã phê duyệt", declinedMsg:"Người dùng từ chối. Thực thi đã dừng; không bước nào sau đó được chạy.",
+  sent:"Dữ liệu được gửi", withheld:"giữ lại",
+  provP:"Mỗi bước được ghi thành một PROV-O activity, gắn với tác tử và với người mà tác tử hành động thay. Chỉ ghi tên trường đã tiết lộ, không ghi giá trị.",
+  showTtl:"Xem bản ghi Turtle",
+  cmpH:"Cùng kế hoạch, bộ định tuyến không xét chính sách", cmpBase:"Định tuyến không xét chính sách", cmpUs:"BizKB-A", viols:"vi phạm chuẩn tắc",
+  cmpNote:"Bộ định tuyến không xét chính sách chọn tác tử có (độ tin cậy − chi phí) cao nhất trong số tác tử quảng bá năng lực phù hợp, không có cổng kiểm soát.",
+  kbH:"Bộ điều phối biết những gì", kbP:"Tác tử được mô tả bằng descriptor ngữ nghĩa. Chỉ descriptor có chữ ký của tổ chức tin cậy mới được gán. Hai tác tử thương mại và một tác tử dịch vụ công là \"bẫy\" có chủ đích.",
+  agentsH:"Sổ đăng ký tác tử", normsH:"Sổ chuẩn tắc", thProvides:"Cung cấp", thAuth:"Thẩm quyền", thData:"Lớp dữ liệu", thTrust:"Tin cậy", thCost:"Chi phí", thStatus:"Trạng thái",
+  attested:"Đã chứng thực", trap:"Bẫy", draft:"Nháp",
+  annotH:"Sinh descriptor nháp từ A2A Agent Card", annotP:"Máy ánh xạ các skill sang khái niệm tác vụ. Thẩm quyền, lớp dữ liệu, độ tin cậy và chữ ký phải do chuyên gia và tổ chức chứng thực cung cấp.",
+  annotBtn:"Sinh descriptor nháp", mapped:"ánh xạ tự động", unmapped:"cần mô hình hóa thủ công", needsHuman:"Con người vẫn phải bổ sung",
+  nh:["thẩm quyền pháp lý","lớp dữ liệu được phép","mức tin cậy","chữ ký của tổ chức chứng thực"],
+  footer:"Bản demo tham chiếu BizKB-A · kế thừa BizKB (ICCCI 2009). Các chuẩn tắc hiển thị là mô hình minh họa, không phải quy định pháp luật hiện hành.",
+  dPublic:"Dịch vụ công liên thông", dCommerce:"Thương mại tác tử"
+ }
+};
+let LANG = "en";
+try{ const s = localStorage.getItem("bizkba-lang"); if(s==="vi"||s==="en") LANG=s; }catch(e){}
+const t = k => (T[LANG][k] ?? T.en[k] ?? k);
+const L = o => (o && typeof o==="object") ? (o[LANG] ?? o.en) : o;
+
+/* ======================= Ontology ======================= */
+const DC = {PublicData:{en:"public",vi:"công khai"}, PersonalData:{en:"personal",vi:"cá nhân"}, FinancialData:{en:"financial",vi:"tài chính"}};
+const AUTH = {
+  CivilRegistryAuthority:{en:"civil registry",vi:"hộ tịch"}, ResidenceAuthority:{en:"residence registry",vi:"cư trú"},
+  SocialInsuranceAuthority:{en:"social insurance",vi:"bảo hiểm xã hội"}, PaymentLicense:{en:"payment licence",vi:"giấy phép trung gian thanh toán"},
+  EInvoiceProvider:{en:"e-invoice provider",vi:"cung cấp hóa đơn điện tử"}
+};
+const DOMAINS = {gov:"dPublic", com:"dCommerce"};
+const TASKS = {
+  Task:{label:{en:"task",vi:"tác vụ"}},
+  Goal:{parent:"Task", label:{en:"goal",vi:"mục tiêu"}},
+  // public services
+  BirthLifeEvent:{parent:"Goal",domain:"gov",label:{en:"birth registration bundle",vi:"liên thông khai sinh"},
+    alt:{vi:["liên thông khai sinh","đăng ký khai sinh","khai sinh","sinh con"],en:["birth registration","register a birth","register my baby","newborn"]}},
+  RegisterBirth:{parent:"Task",domain:"gov",auth:"CivilRegistryAuthority",dc:"PersonalData",risk:2,needs:["full_name","national_id"],label:{en:"register the birth (civil registry)",vi:"đăng ký khai sinh (hộ tịch)"}},
+  RegisterPermanentResidence:{parent:"Task",domain:"gov",auth:"ResidenceAuthority",dc:"PersonalData",risk:2,needs:["full_name","national_id","address"],label:{en:"register permanent residence",vi:"đăng ký thường trú"}},
+  IssueHealthInsuranceCard:{parent:"Task",label:{en:"issue a health-insurance card",vi:"cấp thẻ BHYT"}},
+  IssueChildHealthInsurance:{parent:"IssueHealthInsuranceCard",domain:"gov",auth:"SocialInsuranceAuthority",dc:"PersonalData",risk:1,needs:["full_name","national_id"],label:{en:"issue child health insurance (under 6)",vi:"cấp thẻ BHYT trẻ em dưới 6 tuổi"}},
+  NotifyCitizen:{parent:"Task",domain:"gov",dc:"PublicData",risk:1,needs:["citizen_request"],label:{en:"notify the citizen",vi:"thông báo kết quả"}},
+  // commerce
+  PurchaseGoods:{parent:"Goal",domain:"com",label:{en:"purchase (user present)",vi:"mua hàng (người dùng có mặt)"},
+    alt:{vi:["mua hàng","đặt mua"],en:["buy","purchase","order"]}},
+  DelegatedPurchase:{parent:"Goal",domain:"com",label:{en:"delegated purchase (user absent)",vi:"mua tự động theo ủy quyền"},
+    alt:{vi:["mua tự động","tự động mua","tự động đặt","mua giúp khi"],en:["automatically buy","auto-buy","buy when","buy it for me when","delegated purchase"]}},
+  ReturnAndRefund:{parent:"Goal",domain:"com",label:{en:"return and refund",vi:"trả hàng và hoàn tiền"},
+    alt:{vi:["trả hàng","hoàn tiền"],en:["return","refund"]}},
+  ReorderLastPurchase:{parent:"Goal",domain:"com",label:{en:"reorder the previous purchase",vi:"mua lại đơn hàng trước"},
+    alt:{vi:["mua lại đơn hàng trước","mua lại","đặt lại đơn"],en:["reorder","re-order","buy again","same order again"]}},
+  SearchOffers:{parent:"Task",domain:"com",dc:"PublicData",risk:1,needs:["product","quantity"],label:{en:"search and compare offers",vi:"tìm và so sánh chào hàng"}},
+  VerifyMerchant:{parent:"Task",domain:"com",dc:"PublicData",risk:1,needs:["merchant"],label:{en:"verify merchant registration",vi:"xác minh người bán đã đăng ký"}},
+  RetrieveOrderHistory:{parent:"Task",domain:"com",dc:"PersonalData",risk:1,needs:["order_ref"],label:{en:"retrieve order history",vi:"truy xuất lịch sử đơn hàng"}},
+  ObtainPaymentMandate:{parent:"Task",domain:"com",dc:"FinancialData",risk:3,needs:["amount","card_token"],label:{en:"obtain the user's payment authorisation",vi:"lấy ủy quyền thanh toán của người dùng"}},
+  ExecutePayment:{parent:"Task",domain:"com",auth:"PaymentLicense",dc:"FinancialData",risk:3,needs:["amount","card_token","merchant"],label:{en:"execute payment",vi:"thực hiện thanh toán"}},
+  ArrangeDelivery:{parent:"Task",domain:"com",dc:"PersonalData",risk:1,needs:["full_name","address","phone"],label:{en:"arrange delivery",vi:"sắp xếp giao hàng"}},
+  ArrangeReturnPickup:{parent:"Task",domain:"com",dc:"PersonalData",risk:1,needs:["full_name","address","phone","order_ref"],label:{en:"schedule return pickup",vi:"hẹn lấy hàng trả lại"}},
+  ExecuteRefund:{parent:"Task",domain:"com",auth:"PaymentLicense",dc:"FinancialData",risk:2,needs:["amount","card_token","order_ref"],label:{en:"refund the payment",vi:"hoàn tiền"}},
+  IssueEInvoice:{parent:"Task",domain:"com",auth:"EInvoiceProvider",dc:"FinancialData",risk:1,needs:["amount","tax_code","full_name"],label:{en:"issue e-invoice",vi:"xuất hóa đơn điện tử"}}
+};
+const METHODS = {
+  BirthLifeEvent:["RegisterBirth","RegisterPermanentResidence","IssueChildHealthInsurance","NotifyCitizen"],
+  PurchaseGoods:["SearchOffers","VerifyMerchant","ObtainPaymentMandate","ExecutePayment","ArrangeDelivery","IssueEInvoice"],
+  DelegatedPurchase:["SearchOffers","VerifyMerchant","ExecutePayment","ArrangeDelivery","IssueEInvoice"],
+  ReturnAndRefund:["RetrieveOrderHistory","ArrangeReturnPickup","ExecuteRefund","IssueEInvoice"]
+};
+const METHOD_STATUS = {}; // goal -> "curated" | "proposed"
+Object.keys(METHODS).forEach(k=>METHOD_STATUS[k]="curated");
+const LLM_SCRIPT = { ReorderLastPurchase:[
+  ["RetrieveOrderHistory","QuickPay","ArrangeDelivery"],
+  ["RetrieveOrderHistory","ExecutePayment","ArrangeDelivery"],
+  ["RetrieveOrderHistory","VerifyMerchant","ObtainPaymentMandate","ExecutePayment","ArrangeDelivery","IssueEInvoice"]
+]};
+const AGENTS = [
+  {id:"agent_hotich",label:{en:"Civil registry agent",vi:"Tác tử Hộ tịch"},domain:"gov",provides:["RegisterBirth"],auth:["CivilRegistryAuthority"],dc:["PersonalData"],trust:.95,cost:.3,attested:true},
+  {id:"agent_cutru",label:{en:"Residence agent",vi:"Tác tử Cư trú"},domain:"gov",provides:["RegisterPermanentResidence"],auth:["ResidenceAuthority"],dc:["PersonalData"],trust:.93,cost:.3,attested:true},
+  {id:"agent_bhxh",label:{en:"Social insurance agent",vi:"Tác tử BHXH"},domain:"gov",provides:["IssueHealthInsuranceCard"],auth:["SocialInsuranceAuthority"],dc:["PersonalData"],trust:.92,cost:.4,attested:true},
+  {id:"agent_bhyt_thirdparty",label:{en:"Third-party insurance agent",vi:"Tác tử BHYT bên thứ ba"},domain:"gov",provides:["IssueChildHealthInsurance"],auth:[],dc:["PersonalData"],trust:.70,cost:.05,attested:false,trap:true},
+  {id:"agent_notify",label:{en:"Citizen notification agent",vi:"Tác tử Thông báo"},domain:"gov",provides:["NotifyCitizen"],auth:[],dc:["PublicData"],trust:.9,cost:.1,attested:true},
+  {id:"agent_shopping",label:{en:"Shopping agent",vi:"Tác tử mua sắm"},domain:"com",provides:["SearchOffers","RetrieveOrderHistory"],auth:[],dc:["PublicData","PersonalData"],trust:.85,cost:.2,attested:true},
+  {id:"agent_registry",label:{en:"E-commerce registry agent",vi:"Tác tử tra cứu đăng ký TMĐT"},domain:"com",provides:["VerifyMerchant"],auth:[],dc:["PublicData"],trust:.95,cost:.05,attested:true},
+  {id:"agent_wallet",label:{en:"Licensed wallet agent",vi:"Tác tử ví được cấp phép"},domain:"com",provides:["ObtainPaymentMandate","ExecutePayment","ExecuteRefund"],auth:["PaymentLicense"],dc:["FinancialData","PublicData"],trust:.95,cost:.4,attested:true},
+  {id:"agent_fake_licensed",label:{en:"Payment agent (self-declared licence)",vi:"Tác tử thanh toán tự khai có phép"},domain:"com",provides:["ExecutePayment"],auth:["PaymentLicense"],dc:["FinancialData"],trust:.99,cost:.01,attested:false,trap:true},
+  {id:"agent_rogue_pay",label:{en:"Unlicensed payment agent",vi:"Tác tử thanh toán không phép"},domain:"com",provides:["ExecutePayment"],auth:[],dc:["FinancialData"],trust:.97,cost:.01,attested:false,trap:true},
+  {id:"agent_logistics",label:{en:"Logistics agent",vi:"Tác tử logistics"},domain:"com",provides:["ArrangeDelivery","ArrangeReturnPickup"],auth:[],dc:["PersonalData"],trust:.88,cost:.3,attested:true},
+  {id:"agent_einvoice",label:{en:"E-invoice agent",vi:"Tác tử hóa đơn điện tử"},domain:"com",provides:["IssueEInvoice"],auth:["EInvoiceProvider"],dc:["FinancialData","PersonalData"],trust:.9,cost:.2,attested:true}
+];
+const MERCHANTS = {
+  merchant_A:{label:{en:"Shop A (registered)",vi:"Cửa hàng A (đã đăng ký)"},verified:true,cross:false},
+  merchant_B:{label:{en:"Shop B (unregistered)",vi:"Cửa hàng B (chưa đăng ký)"},verified:false,cross:false},
+  merchant_X:{label:{en:"Platform X (cross-border)",vi:"Nền tảng X (xuyên biên giới)"},verified:true,cross:true}
+};
+const CATS = {
+  Groceries:{label:{en:"Groceries",vi:"Thực phẩm, nhu yếu phẩm"}},
+  Electronics:{label:{en:"Electronics",vi:"Điện tử"}},
+  PrescriptionDrugs:{label:{en:"Prescription drugs",vi:"Thuốc kê đơn"},prohibited:true}
+};
+const FIELD_DC = {product:"PublicData",quantity:"PublicData",merchant:"PublicData",order_ref:"PublicData",citizen_request:"PublicData",
+  full_name:"PersonalData",address:"PersonalData",phone:"PersonalData",national_id:"PersonalData",
+  card_token:"FinancialData",amount:"FinancialData",tax_code:"FinancialData"};
+const PROFILE = {full_name:"Nguyễn Văn B",address:"Hà Nội",phone:"09xx xxx xxx",national_id:"0xx…",card_token:"tok_***",tax_code:"01xx…",order_ref:"DH-001",product:"",quantity:1};
+
+const NORMS = [
+  {c:"N1",t:{en:"Task is a valid ontology concept",vi:"Tác vụ là khái niệm hợp lệ"},lvl:"step"},
+  {c:"N2",t:{en:"Agent holds required authority",vi:"Tác tử có thẩm quyền bắt buộc"},lvl:"step"},
+  {c:"N3",t:{en:"Agent may process the data class",vi:"Tác tử được xử lý lớp dữ liệu"},lvl:"step"},
+  {c:"N4",t:{en:"Payment has a basis of authorisation",vi:"Thanh toán có căn cứ ủy quyền"},lvl:"step"},
+  {c:"N5",t:{en:"High-risk step has human approval",vi:"Bước rủi ro cao có phê duyệt"},lvl:"step"},
+  {c:"N6",t:{en:"Agent descriptor is attested",vi:"Descriptor đã được chứng thực"},lvl:"step"},
+  {c:"C1",t:{en:"Merchant is registered",vi:"Người bán đã đăng ký"},lvl:"plan"},
+  {c:"C2",t:{en:"Amount within mandate cap",vi:"Số tiền trong hạn mức"},lvl:"plan"},
+  {c:"C3",t:{en:"Category within mandate scope",vi:"Danh mục trong phạm vi ủy quyền"},lvl:"plan"},
+  {c:"C4",t:{en:"Mandate not expired",vi:"Ủy quyền còn hiệu lực"},lvl:"plan"},
+  {c:"C5",t:{en:"Goods not restricted for agents",vi:"Không phải hàng cấm qua tác tử"},lvl:"plan"},
+  {c:"C6",t:{en:"Cross-border payment approved by user",vi:"Thanh toán xuyên biên giới có phê duyệt"},lvl:"plan"},
+  {c:"C7",t:{en:"Delegated purchase has a mandate",vi:"Mua tự động có ủy quyền"},lvl:"plan"}
+];
+
+/* ======================= Scenarios ======================= */
+const SCEN = [
+ {id:"G1",g:"gPublic",name:{en:"Birth registration bundle",vi:"Liên thông khai sinh"},text:{en:"I want to register my baby's birth",vi:"Tôi muốn đăng ký khai sinh cho con"}},
+ {id:"A1",g:"gCommerce",name:{en:"Purchase, user present",vi:"Mua hàng, người dùng có mặt"},text:{en:"Order 2 cans of infant formula",vi:"Đặt mua 2 hộp sữa công thức"},ctx:{amount:350000,merchant:"merchant_A",category:"Groceries",mandate:false},product:{en:"infant formula",vi:"sữa công thức"},q:2},
+ {id:"A2",g:"gCommerce",name:{en:"Delegated, within cap",vi:"Mua tự động, trong hạn mức"},text:{en:"Automatically buy formula when the price drops below 450k",vi:"Tự động mua sữa khi giá dưới 450 nghìn"},ctx:{amount:420000,merchant:"merchant_A",category:"Groceries",mandate:true,cap:500000,days:30,cats:["Groceries"]},product:{en:"infant formula",vi:"sữa công thức"}},
+ {id:"A3",g:"gCommerce",name:{en:"Delegated, above cap",vi:"Mua tự động, vượt hạn mức"},text:{en:"Automatically buy formula when in stock",vi:"Tự động mua sữa khi có hàng"},ctx:{amount:800000,merchant:"merchant_A",category:"Groceries",mandate:true,cap:500000,days:30,cats:["Groceries"]}},
+ {id:"A4",g:"gCommerce",name:{en:"Delegated, wrong category",vi:"Mua tự động, sai danh mục"},text:{en:"Automatically buy headphones when discounted",vi:"Tự động mua tai nghe khi giảm giá"},ctx:{amount:300000,merchant:"merchant_A",category:"Electronics",mandate:true,cap:500000,days:30,cats:["Groceries"]}},
+ {id:"A5",g:"gCommerce",name:{en:"Delegated, no mandate",vi:"Mua tự động, không ủy quyền"},text:{en:"Automatically buy formula at a good price",vi:"Tự động mua sữa khi giá tốt"},ctx:{amount:300000,merchant:"merchant_A",category:"Groceries",mandate:false}},
+ {id:"A6",g:"gCommerce",name:{en:"Mandate expired",vi:"Ủy quyền hết hạn"},text:{en:"Automatically buy formula at a good price",vi:"Tự động mua sữa khi giá tốt"},ctx:{amount:300000,merchant:"merchant_A",category:"Groceries",mandate:true,cap:500000,days:-1,cats:["Groceries"]}},
+ {id:"A7",g:"gCommerce",name:{en:"Unregistered merchant",vi:"Người bán chưa đăng ký"},text:{en:"Order a rice cooker",vi:"Đặt mua nồi cơm điện"},ctx:{amount:600000,merchant:"merchant_B",category:"Electronics",mandate:false}},
+ {id:"A8",g:"gCommerce",name:{en:"Restricted goods",vi:"Hàng cấm qua tác tử"},text:{en:"Order antibiotics",vi:"Đặt mua thuốc kháng sinh"},ctx:{amount:200000,merchant:"merchant_A",category:"PrescriptionDrugs",mandate:false}},
+ {id:"A9",g:"gCommerce",name:{en:"Cross-border under mandate",vi:"Xuyên biên giới có ủy quyền"},text:{en:"Automatically buy imported formula",vi:"Tự động mua sữa nhập khẩu"},ctx:{amount:400000,merchant:"merchant_X",category:"Groceries",mandate:true,cap:500000,days:30,cats:["Groceries"]}},
+ {id:"A10",g:"gCommerce",name:{en:"Return and refund",vi:"Trả hàng, hoàn tiền"},text:{en:"I want to return my last order and get a refund",vi:"Tôi muốn trả hàng đơn vừa rồi"},ctx:{amount:350000,merchant:"merchant_A",category:"Groceries",mandate:false}},
+ {id:"A11",g:"gCommerce",name:{en:"Reorder (LLM fallback)",vi:"Mua lại (LLM dự phòng)"},text:{en:"Reorder my previous purchase",vi:"Mua lại đơn hàng trước giúp tôi"},ctx:{amount:350000,merchant:"merchant_A",category:"Groceries",mandate:false}},
+ {id:"X1",g:"gOther",name:{en:"Out of scope",vi:"Ngoài phạm vi"},text:{en:"Apply for a building permit",vi:"Xin cấp giấy phép xây dựng"}}
+];
+let currentScen = null;
+
+/* ======================= Engine ======================= */
+const norm = s => s.normalize("NFC").toLowerCase().replace(/\s+/g," ").trim();
+const isTask = id => { let x=id; const seen=new Set(); while(x && TASKS[x] && !seen.has(x)){ if(x==="Task") return id!=="Task"; seen.add(x); x=TASKS[x].parent; } return false; };
+const isSub = (a,b) => { let x=a; const seen=new Set(); while(x && !seen.has(x)){ if(x===b) return true; seen.add(x); x=TASKS[x]?.parent; } return false; };
+const goals = () => Object.keys(TASKS).filter(k=>k!=="Goal" && isSub(k,"Goal"));
+const tl = id => TASKS[id] ? L(TASKS[id].label) : id;
+
+function ground(text){
+  const q = norm(text); let best=null;
+  for(const g of goals()){
+    const labels=[...(TASKS[g].alt?.vi||[]),...(TASKS[g].alt?.en||[]),TASKS[g].label.en,TASKS[g].label.vi];
+    for(const lab of labels){ const n=norm(lab); if(q.includes(n) && (!best || n.length>best.lab.length)) best={goal:g,lab}; }
+  }
+  return best;
+}
+function degree(req,adv){
+  if(req===adv) return "exact";
+  if(isSub(req,adv)) return "plugin";
+  if(isSub(adv,req)) return "subsumes";
+  return "fail";
+}
+const DEGV = {exact:1, plugin:.8, subsumes:.5, fail:0};
+function bestDegree(task,agent){ let b="fail"; for(const p of agent.provides){ const d=degree(task,p); if(DEGV[d]>DEGV[b]) b=d; } return b; }
+function gateReasons(task,agent,deg){
+  const r=[]; const T0=TASKS[task]||{};
+  if(agent.draft) r.push({k:"r_draft"});
+  if(!agent.attested) r.push({k:"r_attest"});
+  if(!(deg==="exact"||deg==="plugin")) r.push({k:"r_deg"});
+  if(T0.auth && !agent.auth.includes(T0.auth)) r.push({k:"r_auth",x:T0.auth});
+  if(T0.dc && !agent.dc.includes(T0.dc)) r.push({k:"r_dc",x:T0.dc});
+  return r;
+}
+function score(task,agent,deg){
+  const dom = agent.domain===TASKS[task]?.domain ? 1 : .5;
+  return +(.4*DEGV[deg] + .3*agent.trust + .1*(1-agent.cost) + .2*dom).toFixed(3);
+}
+function candidates(task){
+  const out=[];
+  for(const a of AGENTS){ const d=bestDegree(task,a); if(d==="fail") continue;
+    const reasons=gateReasons(task,a,d); out.push({a,d,s:score(task,a,d),ok:!reasons.length,reasons}); }
+  out.sort((x,y)=> (x.ok===y.ok ? y.s-x.s : (x.ok?-1:1)));
+  return out;
+}
+function provided(task){ return AGENTS.some(a=>{const d=bestDegree(task,a); return d==="exact"||d==="plugin";}); }
+function needsHitl(task,ctx){
+  if(task==="ExecutePayment" && ctx && ctx.merchant && MERCHANTS[ctx.merchant]?.cross) return true;
+  const covered = !!(ctx && ctx.mandate);
+  return (TASKS[task]?.risk||0)>=3 && !covered;
+}
+function validate(goal,steps,ctx){
+  const v=[]; const add=(c,step)=>v.push({c,step});
+  const hasMand = !!(ctx && ctx.mandate);
+  steps.forEach((s,i)=>{
+    const T0=TASKS[s.task];
+    if(!isTask(s.task)) add("N1",i+1);
+    if(s.agent){
+      if(T0?.auth && !s.agent.auth.includes(T0.auth)) add("N2",i+1);
+      if(T0?.dc && !s.agent.dc.includes(T0.dc)) add("N3",i+1);
+      if(!s.agent.attested) add("N6",i+1);
+    }
+    if(s.task==="ExecutePayment"){
+      const prior = steps.slice(0,i).some(p=>p.task==="ObtainPaymentMandate");
+      if(!prior && !hasMand) add("N4",i+1);
+    }
+    if((T0?.risk||0)>=3 && !s.hitl && !hasMand) add("N5",i+1);
+  });
+  if(ctx){
+    const pays = steps.filter(s=>s.task==="ExecutePayment");
+    const m = ctx.merchant && MERCHANTS[ctx.merchant];
+    if(pays.length && m && !m.verified) add("C1",null);
+    if(ctx.mandate && ctx.amount!=null && ctx.amount>ctx.mandate.cap) add("C2",null);
+    if(ctx.mandate && ctx.mandate.cats.length && ctx.category && !ctx.mandate.cats.includes(ctx.category)) add("C3",null);
+    if(ctx.mandate && ctx.mandate.days<0) add("C4",null);
+    if(ctx.category && CATS[ctx.category]?.prohibited) add("C5",null);
+    if(m && m.cross && pays.some(s=>!s.hitl)) add("C6",null);
+  }
+  if(goal==="DelegatedPurchase" && !hasMand) add("C7",null);
+  return v;
+}
+function decompose(goal,ctx,trace,depth=0){
+  if(depth>6) return null;
+  if(METHODS[goal]){
+    trace.method={goal,status:METHOD_STATUS[goal],subs:METHODS[goal]};
+    const out=[]; for(const s of METHODS[goal]){ const r=decompose(s,ctx,trace,depth+1); if(!r) return null; out.push(...r); } return out;
+  }
+  if(provided(goal)) return [goal];
+  const script = (LLM_SCRIPT[goal]||[]).slice();
+  trace.llm=[];
+  for(const prop of script){
+    const steps = prop.map(x=>({task:x,hitl:needsHitl(x,ctx)}));
+    const v = validate(goal,steps,ctx);
+    trace.llm.push({prop,v});
+    if(!v.length){ METHODS[goal]=prop; METHOD_STATUS[goal]="proposed"; trace.method={goal,status:"proposed",subs:prop}; return prop; }
+  }
+  return null;
+}
+function minimise(task,agent,payload){
+  const need = TASKS[task]?.needs||[]; const sent=[], held=[];
+  for(const k of Object.keys(payload)){
+    if(FIELD_DC[k] && agent.dc.includes(FIELD_DC[k]) && need.includes(k)) sent.push(k); else if(need.includes(k)) held.push(k);
+  }
+  return {sent,held};
+}
+function baselineBind(task){
+  let best=null; for(const a of AGENTS){ if(bestDegree(task,a)==="fail") continue; const v=a.trust-a.cost; if(!best||v>best.v) best={a,v}; }
+  return best?.a||null;
+}
+
+/* ======================= Engine mode ======================= */
+let MODE="local", KBINFO=null;
+async function detectEngine(){
+  try{
+    const res=await fetch("api/kb",{headers:{accept:"application/json"}});
+    if(!res.ok) throw 0;
+    KBINFO=await res.json(); if(KBINFO.engine!=="live") throw 0; MODE="live";
+  }catch(e){ MODE="local"; }
+  paintMode();
+}
+function paintMode(){
+  const el=$("mode"); if(!el) return;
+  if(MODE==="live"){
+    el.className="badge att"; el.textContent=`${t("modeLive")} · pySHACL ${KBINFO.pyshacl} · ${KBINFO.llm==="anthropic"?t("llmReal"):t("llmScript")}`;
+    el.title=t("modeLiveT");
+  } else { el.className="badge draft"; el.textContent=t("modeLocal"); el.title=t("modeLocalT"); }
+}
+const agentById = id => AGENTS.find(a=>a.id===id) || {id,label:{en:id,vi:id},dc:[],auth:[],provides:[]};
+function adopt(res,keepText){
+  const r={text:keepText, status:res.status==="rejected"?"rejected":res.status, rejectAt:res.rejectAt,
+    pid:res.pid, g:res.g, trace:res.trace||{}, viol:res.viol||[], cmp:res.cmp, prov:res.prov||"",
+    ctx:res.ctxUsed?true:null, remote:true};
+  r.steps=(res.steps||[]).map(s=>({task:s.task,hitl:s.hitl,agent:agentById(s.agent),deg:s.deg}));
+  r.bind=(res.bind||[]).map(b=>({task:b.task,
+    best:b.best?{a:agentById(b.best.agent),d:b.best.d,s:b.best.s}:null,
+    rejected:(b.rejected||[]).map(c=>({a:agentById(c.agent),s:c.s,reasons:c.reasons||[]}))}));
+  r.exec=(res.exec||[]).map((e,i)=>({s:{task:e.task,agent:agentById(e.agent)},sent:e.sent||[],held:e.held||[],
+    status:e.status,approved:e.approved}));
+  r.i=r.exec.length;
+  if(r.trace.llm) r.trace.llm=r.trace.llm.map(a=>({prop:a.prop,v:(a.v||[]).map(c=>({c}))}));
+  return r;
+}
+async function runRemote(){
+  const c=readCtx(), body={text:$("req").value.trim(), compare:$("compare").checked,
+    product: currentScen?.product?L(currentScen.product):null};
+  const goalIsCommerce=true;
+  Object.assign(body,{amount:c.amount, merchant:c.merchant, category:c.category,
+    mandate:c.mandate?{cap:c.mandate.cap,days:c.mandate.days,cats:c.mandate.cats}:null});
+  const res=await fetch("api/orchestrate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+  if(!res.ok) throw new Error("engine");
+  RUN=adopt(await res.json(), body.text); render();
+}
+async function decideRemote(ok){
+  const res=await fetch(`api/plans/${RUN.pid}/decision`,{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({approve:ok})});
+  RUN=adopt(await res.json(), RUN.text); render();
+}
+
+/* ======================= Run state & rendering ======================= */
+let RUN=null;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $ = id => document.getElementById(id);
+
+function readCtx(){
+  const mand = $("hasMandate").checked ? {cap:+$("cap").value||0, days:+$("validDays").value, cats:[...document.querySelectorAll("#mandCats input:checked")].map(i=>i.value)} : null;
+  return {amount:+$("amount").value||0, merchant:$("merchant").value, category:$("category").value, mandate:mand};
+}
+async function orchestrate(){
+  const text=$("req").value.trim(); if(!text){ $("req").focus(); return; }
+  if(MODE==="live"){
+    try{ await runRemote(); }catch(e){ $("ledger").innerHTML=`<div class="panel empty" style="color:var(--bad)">${t("engineErr")}</div>`; }
+    return;
+  }
+  const r={text, ctxRaw:readCtx(), stage:{}, prov:[], exec:[], status:"running"};
+  const g=ground(text); r.g=g;
+  if(!g){ r.status="rejected"; r.rejectAt=1; RUN=r; render(); return; }
+  const dom=TASKS[g.goal].domain; r.ctx = dom==="com" ? r.ctxRaw : null;
+  const trace={}; const tasks=decompose(g.goal,r.ctx,trace); r.trace=trace;
+  if(!tasks){ r.status="rejected"; r.rejectAt=2; RUN=r; render(); return; }
+  r.steps=tasks.map(x=>({task:x,hitl:needsHitl(x,r.ctx)}));
+  r.bind=[];
+  for(const s of r.steps){
+    const c=candidates(s.task); const best=c.find(x=>x.ok);
+    r.bind.push({task:s.task,best,rejected:c.filter(x=>!x.ok)});
+    if(!best){ r.status="rejected"; r.rejectAt=3; RUN=r; render(); return; }
+    s.agent=best.a; s.deg=best.d; s.score=best.s;
+  }
+  r.viol=validate(g.goal,r.steps,r.ctx);
+  if($("compare").checked){
+    const bs=r.steps.map(s=>({task:s.task,hitl:s.hitl,agent:baselineBind(s.task)}));
+    r.cmp={base:validate(g.goal,bs,r.ctx), baseSteps:bs};
+  }
+  if(r.viol.length){ r.status="rejected"; r.rejectAt=4; RUN=r; render(); return; }
+  r.payload={...PROFILE, product: currentScen?.product ? L(currentScen.product) : text, quantity: currentScen?.q||1, citizen_request:text};
+  if(r.ctx){ r.payload.amount=r.ctx.amount; r.payload.merchant=L(MERCHANTS[r.ctx.merchant].label); }
+  r.pid = Math.random().toString(16).slice(2,10);
+  r.i=0; RUN=r; advance();
+}
+function advance(){
+  const r=RUN;
+  while(r.i<r.steps.length){
+    const s=r.steps[r.i];
+    if(s.hitl && !s.approved){ r.status="waiting"; render(); return; }
+    const m=minimise(s.task,s.agent,r.payload);
+    r.exec.push({s,sent:m.sent,held:m.held,status:"done",approved:!!s.approved});
+    r.i++;
+  }
+  r.status="completed"; render();
+}
+function decide(ok){
+  if(MODE==="live"){ decideRemote(ok); return; }
+  const r=RUN; const s=r.steps[r.i];
+  if(ok){ s.approved=true; r.status="running"; advance(); }
+  else { r.exec.push({s,sent:[],held:[],status:"denied"}); r.status="halted"; render(); }
+}
+
+function stageHTML(n,titleKey,state,body){
+  const pill = {done:["ok","done"],rejected:["bad","rejected"],halted:["bad","halted"],waiting:["wait","waiting"],skipped:["skip","skipped"],completed:["ok","completed"]}[state];
+  return `<article class="stage ${state==="skipped"?"skipped":""}"><div class="stage-h"><span class="stage-n" aria-hidden="true">${n}</span><h3>${t(titleKey)}</h3><span class="pill ${pill[0]}">${t(pill[1])}</span></div><div class="stage-b">${body}</div></article>`;
+}
+function reasonText(r){ const x=r.x?(AUTH[r.x]?L(AUTH[r.x]):DC[r.x]?L(DC[r.x]):r.x):null; return t(r.k)+(x?` (${esc(x)})`:""); }
+function normTitle(c){ return L(NORMS.find(n=>n.c===c).t); }
+
+function render(){
+  const el=$("ledger"); const r=RUN;
+  if(!r){ el.innerHTML=`<div class="panel empty">${t("emptyP")}</div>`; return; }
+  const st = n => { if(r.status==="rejected" && r.rejectAt===n) return "rejected"; if(r.status==="rejected" && r.rejectAt<n) return "skipped"; return "done"; };
+  let h="";
+  // 1 grounding
+  h+= stageHTML(1,"s1", st(1), r.g ? `<dl class="kv"><dt>${t("goal")}</dt><dd><b>${esc(tl(r.g.goal))}</b></dd><dt>${t("domain")}</dt><dd>${t(DOMAINS[TASKS[r.g.goal].domain])}</dd><dt>${t("matched")}</dt><dd>“${esc(r.g.lab)}”</dd></dl>` : `<p style="margin:0">${t("noGround")}</p>`);
+  // 2 decomposition
+  if(r.rejectAt===1){ h+=stageHTML(2,"s2","skipped","—"); }
+  else {
+    let b="";
+    if(r.trace.llm){ b+=`<p style="margin:0 0 8px">${t("noMethod")}</p><ol class="loglist">`+ r.trace.llm.map((x,i)=>`<li class="${x.v.length?"rej":"acc"}">${t("llmTry")} ${i+1}: [${x.prop.map(p=>esc(TASKS[p]?tl(p):p+" ✗")).join(", ")}] — ${x.v.length? t("rejectedBy")+" "+[...new Set(x.v.map(v=>v.c))].join(", ") : t("accepted")}</li>`).join("")+`</ol>`; }
+    if(r.trace.method){ b+=`<p style="margin:${r.trace.llm?"10px":"0"} 0 6px">${t("method")}: <b>${esc(tl(r.trace.method.goal))}</b> — ${t(r.trace.method.status)}</p><ol class="loglist">`+(r.steps||[]).map(s=>`<li>${esc(tl(s.task))}</li>`).join("")+`</ol>`; }
+    h+=stageHTML(2,"s2",st(2),b||"—");
+  }
+  // 3 binding
+  if(r.rejectAt && r.rejectAt<3){ h+=stageHTML(3,"s3","skipped","—"); }
+  else {
+    let b=`<div class="tbl-wrap"><table><thead><tr><th>${t("thStep")}</th><th>${t("thTask")}</th><th>${t("thAgent")}</th><th>${t("thDeg")}</th><th>${t("thScore")}</th><th>${t("thHitl")}</th></tr></thead><tbody>`;
+    r.bind.forEach((x,i)=>{
+      const s=r.steps[i];
+      b+=`<tr><td>${i+1}</td><td>${esc(tl(x.task))}${x.rejected.map(c=>`<div class="excl">${t("excluded")}: <s>${esc(L(c.a.label))}</s> · S=${c.s} — ${c.reasons.map(reasonText).join("; ")}</div>`).join("")}</td><td>${x.best?esc(L(x.best.a.label)):`<span style="color:var(--bad)">${t("unbindable")}</span>`}</td><td>${x.best?`<span class="deg">${x.best.d}</span>`:""}</td><td>${x.best?x.best.s:""}</td><td>${s.hitl?t("yes"):t("no")}</td></tr>`;
+    });
+    b+=`</tbody></table></div>`;
+    h+=stageHTML(3,"s3",st(3),b);
+  }
+  // 4 verification
+  if(r.rejectAt && r.rejectAt<4){ h+=stageHTML(4,"s4","skipped","—"); }
+  else {
+    const fired=new Set(r.viol.map(v=>v.c));
+    const applicable = c => c.startsWith("N") || !!r.ctx || c==="C7";
+    let b=`<div class="seals">`+NORMS.map(n=>`<div class="seal ${!applicable(n.c)?"na":fired.has(n.c)?"fail":"pass"}"><div class="code">${n.c}</div><div class="t">${esc(L(n.t))}</div></div>`).join("")+`</div>`;
+    b+= r.viol.length ? `<div class="viol"><b>${t("someFail")}</b><ul class="loglist">${r.viol.map(v=>`<li>${v.c} — ${esc(normTitle(v.c))} [${v.step?t("stepLbl")+" "+v.step:t("planLevel")}]</li>`).join("")}</ul></div>` : `<p style="margin:10px 0 0;color:var(--ok)">${t("allPass")}</p>`;
+    if(r.cmp){
+      b+=`<h4 style="margin:16px 0 8px;font-size:14px">${t("cmpH")}</h4><div class="compare"><div class="cmp ${r.cmp.base.length?"bad":"ok"}"><h4>${t("cmpBase")}</h4><div class="big">${r.cmp.base.length}</div><div class="muted">${t("viols")}${r.cmp.base.length?": "+[...new Set(r.cmp.base.map(v=>v.c))].join(", "):""}</div></div><div class="cmp ${r.viol.length?"bad":"ok"}"><h4>${t("cmpUs")}</h4><div class="big">${r.viol.length}</div><div class="muted">${t("viols")}</div></div></div><p class="muted" style="margin:8px 0 0">${t("cmpNote")}</p>`;
+    }
+    h+=stageHTML(4,"s4",st(4),b);
+  }
+  // 5 execution
+  if(r.rejectAt){ h+=stageHTML(5,"s5","skipped","—"); }
+  else {
+    let b="";
+    r.steps.forEach((s,i)=>{
+      const e=r.exec[i];
+      const state = e ? e.status : (i===r.i && r.status==="waiting" ? "waiting" : "");
+      b+=`<div class="exec-step ${state}"><span class="exec-dot" aria-hidden="true"></span><div><div class="exec-title">${i+1}. ${esc(tl(s.task))} <span class="muted">← ${esc(L(s.agent.label))}</span></div>`;
+      if(e && e.status==="done"){
+        b+=`<div class="chips"><span class="muted" style="font-size:12px;margin-right:4px">${t("sent")}:</span>${e.sent.map(k=>`<span class="chip">${k}</span>`).join("")}${e.held.map(k=>`<span class="chip withheld" title="${t("withheld")}">${k}</span>`).join("")}${e.approved?`<span class="chip" style="border-color:var(--ok);color:var(--ok)">${t("approvedBy")}</span>`:""}</div>`;
+      }
+      if(e && e.status==="denied") b+=`<p style="margin:4px 0 0;color:var(--bad)">${t("declinedMsg")}</p>`;
+      if(state==="waiting") b+=`<div class="hitl"><p>${t("approveQ")}</p><button class="btn primary" onclick="decide(true)">${t("approve")}</button><button class="btn danger" onclick="decide(false)">${t("decline")}</button></div>`;
+      b+=`</div></div>`;
+    });
+    h+=stageHTML(5,"s5", r.status==="completed"?"completed": r.status==="halted"?"halted":"waiting", b);
+  }
+  // 6 provenance
+  if(!r.rejectAt && r.exec.length){
+    h+=stageHTML(6,"s6", r.status==="waiting"?"waiting":"done", `<p style="margin:0 0 6px">${t("provP")}</p><details><summary>${t("showTtl")}</summary><pre class="ttl">${esc(turtle(r))}</pre></details>`);
+  }
+  el.innerHTML=h;
+}
+function turtle(r){
+  if(r.remote) return r.prov||"";
+  const P=`plan:${r.pid}`; const who="person:user";
+  let s=`@prefix prov: <http://www.w3.org/ns/prov#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .\n@prefix plan: <https://ndta.gov.vn/plan/> .\n@prefix agent: <https://ndta.gov.vn/agent/> .\n@prefix person: <https://ndta.gov.vn/person/> .\n\n`;
+  s+=`${P} a prov:Plan ; bka:taskType bka:${r.g.goal} .\n${P}-orch a prov:Activity ;\n  prov:wasAssociatedWith agent:bizkb-a-orchestrator${r.ctx?.mandate?` ;\n  prov:used ${P}-mandate`:""} .\nagent:bizkb-a-orchestrator prov:actedOnBehalfOf ${who} .\n`;
+  if(r.ctx?.mandate) s+=`${P}-mandate a prov:Entity, bka:IntentMandate ;\n  prov:wasAttributedTo ${who} ; bka:maxAmount ${r.ctx.mandate.cap} .\n`;
+  r.exec.forEach((e,i)=>{
+    s+=`\n${P}-step${i+1} a prov:Activity ;\n  bka:taskType bka:${e.s.task} ;\n  prov:wasInformedBy ${P}-orch ;\n  prov:wasAssociatedWith agent:${e.s.agent.id} ;\n  rdfs:comment "${e.status==="done"?"completed":"denied-by-human"}"`;
+    if(e.approved) s+=` ;\n  bka:approvedBy ${who}`;
+    e.sent.forEach(k=> s+=` ;\n  bka:disclosedField "${k}"`);
+    s+=` .\nagent:${e.s.agent.id} prov:actedOnBehalfOf ${who} .\n`;
+  });
+  return s;
+}
+
+/* ======================= Controls ======================= */
+function buildControls(){
+  const groups={};
+  SCEN.forEach(s=>{ (groups[s.g]=groups[s.g]||[]).push(s); });
+  $("scenarios").innerHTML = Object.entries(groups).map(([g,list])=>`<div class="scen-group"><h4>${t(g)}</h4>${list.map(s=>`<button class="scen" data-id="${s.id}" aria-pressed="${currentScen?.id===s.id}"><b>${s.id}</b><span>${esc(L(s.name))}</span></button>`).join("")}</div>`).join("");
+  document.querySelectorAll(".scen").forEach(b=>b.onclick=()=>loadScen(b.dataset.id));
+  const mSel=$("merchant").value, cSel=$("category").value;
+  $("merchant").innerHTML=Object.entries(MERCHANTS).map(([k,m])=>`<option value="${k}">${esc(L(m.label))}</option>`).join("");
+  $("category").innerHTML=Object.entries(CATS).map(([k,c])=>`<option value="${k}">${esc(L(c.label))}</option>`).join("");
+  if(mSel) $("merchant").value=mSel; if(cSel) $("category").value=cSel;
+  const checked=[...document.querySelectorAll("#mandCats input:checked")].map(i=>i.value);
+  $("mandCats").innerHTML=Object.entries(CATS).map(([k,c])=>`<label><input type="checkbox" value="${k}" ${checked.includes(k)?"checked":""}> ${esc(L(c.label))}</label>`).join("");
+}
+function loadScen(id){
+  const s=SCEN.find(x=>x.id===id); currentScen=s;
+  if(id==="A11" && METHOD_STATUS.ReorderLastPurchase==="proposed"){ delete METHODS.ReorderLastPurchase; delete METHOD_STATUS.ReorderLastPurchase; }
+  $("req").value=L(s.text);
+  const c=s.ctx||{amount:0,merchant:"merchant_A",category:"Groceries",mandate:false};
+  $("amount").value=c.amount; $("merchant").value=c.merchant; $("category").value=c.category;
+  $("hasMandate").checked=!!c.mandate; $("cap").value=c.cap||500000; $("validDays").value=c.days??30;
+  document.querySelectorAll("#mandCats input").forEach(i=>i.checked=(c.cats||["Groceries"]).includes(i.value));
+  syncMandate();
+  document.querySelectorAll(".scen").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===id));
+  RUN=null; render();
+}
+function syncMandate(){ $("mandateBox").classList.toggle("hide",!$("hasMandate").checked); }
+
+function renderKB(){
+  const rows=AGENTS.map(a=>`<tr><td><b>${esc(L(a.label))}</b><div class="muted">${t(DOMAINS[a.domain])}</div></td><td>${a.provides.map(p=>esc(tl(p))).join("<br>")}</td><td>${a.auth.map(x=>esc(L(AUTH[x]))).join(", ")||"—"}</td><td>${a.dc.map(x=>esc(L(DC[x]))).join(", ")}</td><td>${a.trust}</td><td>${a.cost}</td><td>${a.attested?`<span class="badge att">${t("attested")}</span>`:""} ${a.trap?`<span class="badge trap">${t("trap")}</span>`:""}</td></tr>`).join("");
+  $("agentsTbl").innerHTML=`<thead><tr><th>${t("thAgent")}</th><th>${t("thProvides")}</th><th>${t("thAuth")}</th><th>${t("thData")}</th><th>${t("thTrust")}</th><th>${t("thCost")}</th><th>${t("thStatus")}</th></tr></thead><tbody>${rows}</tbody>`;
+  $("normsAll").innerHTML=NORMS.map(n=>`<div class="seal"><div class="code">${n.c}</div><div class="t">${esc(L(n.t))}</div></div>`).join("");
+  $("cardJson").textContent=JSON.stringify(CARD,null,2);
+}
+const CARD={name:"FastPay Wallet",url:"https://agents.example.vn/fastpay",skills:[
+  {id:"pay",name:"Execute payment",tags:["payment","thực hiện thanh toán"]},
+  {id:"refund",name:"Refund",tags:["refund","hoàn tiền"]},
+  {id:"loyalty",name:"Loyalty points",tags:["loyalty","tích điểm"]}]};
+function annotate(){
+  const tasks=Object.keys(TASKS).filter(k=>TASKS[k].domain==="com" && !isSub(k,"Goal"));
+  const mapped=[], unmapped=[];
+  for(const sk of CARD.skills){
+    const text=norm([sk.name,...sk.tags].join(" ")); let best=null;
+    for(const tk of tasks){ for(const lab of [TASKS[tk].label.en,TASKS[tk].label.vi]){ const n=norm(lab); if(text.includes(n) && (!best||n.length>best.n)) best={tk,n}; } }
+    best ? mapped.push([sk.id,best.tk]) : unmapped.push(sk.id);
+  }
+  $("annotOut").innerHTML=`<ul class="loglist" style="margin-top:12px">${mapped.map(([s,tk])=>`<li class="acc">${esc(s)} → ${esc(tl(tk))} (${t("mapped")})</li>`).join("")}${unmapped.map(s=>`<li class="rej">${esc(s)} — ${t("unmapped")}</li>`).join("")}</ul><p style="margin:10px 0 4px"><b>${mapped.length}/${CARD.skills.length}</b> · <span class="badge draft">${t("draft")}</span></p><p class="muted" style="margin:0">${t("needsHuman")}: ${t("nh").join(", ")}.</p>`;
+}
+
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i]").forEach(e=>{ e.textContent=t(e.dataset.i); });
+  $("lang-en").setAttribute("aria-pressed",LANG==="en"); $("lang-vi").setAttribute("aria-pressed",LANG==="vi");
+  buildControls(); renderKB(); paintMode(); if($("annotOut").innerHTML) annotate();
+  if(currentScen && !RUN) $("req").value=L(currentScen.text);
+  render();
+}
+function setLang(l){ LANG=l; try{localStorage.setItem("bizkba-lang",l);}catch(e){} applyLang(); }
+$("lang-en").onclick=()=>setLang("en"); $("lang-vi").onclick=()=>setLang("vi");
+$("runBtn").onclick=orchestrate;
+$("hasMandate").onchange=syncMandate;
+$("annotBtn").onclick=annotate;
+$("req").addEventListener("input",()=>{ currentScen=null; document.querySelectorAll(".scen").forEach(b=>b.setAttribute("aria-pressed","false")); });
+function showTab(which){
+  $("view-run").classList.toggle("hide",which!=="run"); $("view-kb").classList.toggle("hide",which!=="kb");
+  $("tab-run").setAttribute("aria-selected",which==="run"); $("tab-kb").setAttribute("aria-selected",which==="kb");
+}
+$("tab-run").onclick=()=>showTab("run"); $("tab-kb").onclick=()=>showTab("kb");
+applyLang(); loadScen("G1"); detectEngine();
+</script>
+</body>
+</html>

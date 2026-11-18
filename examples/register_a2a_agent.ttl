@@ -1,0 +1,10 @@
+# Descriptor ngữ nghĩa cho một tác tử A2A bên ngoài (sinh bán tự động từ Agent Card, chuyên gia xác nhận)
+@prefix bka: <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix gov: <https://ndta.gov.vn/ns/govtech#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+gov:agent_hotich_tinh a bka:Agent ; rdfs:label "Tác tử Hộ tịch cấp tỉnh (A2A)" ;
+  bka:provides gov:RegisterBirth ; bka:inDomain gov:GovDomain ;
+  bka:hasAuthority gov:CivilRegistryAuthority ; bka:handlesDataClass bka:PersonalData ;
+  bka:trust 0.9 ; bka:cost 0.2 ; bka:protocol "a2a" ;
+  bka:endpoint "https://agents.example.gov.vn/hotich/a2a" .

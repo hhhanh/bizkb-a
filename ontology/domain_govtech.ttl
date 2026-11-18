@@ -1,0 +1,55 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix gov:  <https://ndta.gov.vn/ns/govtech#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+gov:GovDomain a bka:Domain ; rdfs:label "Dịch vụ công liên thông"@vi .
+gov:CivilRegistryAuthority   a bka:Authority .
+gov:ResidenceAuthority       a bka:Authority .
+gov:SocialInsuranceAuthority a bka:Authority .
+
+# ---- Goal: nhóm TTHC liên thông khai sinh ----
+gov:BirthLifeEvent rdfs:subClassOf bka:Goal ; bka:taskDomain gov:GovDomain ;
+  skos:prefLabel "liên thông khai sinh"@vi ;
+  skos:altLabel "đăng ký khai sinh"@vi , "khai sinh"@vi , "sinh con"@vi , "birth registration"@en .
+
+# ---- Primitive tasks ----
+gov:RegisterBirth rdfs:subClassOf bka:Task ; bka:taskDomain gov:GovDomain ;
+  bka:requiresAuthority gov:CivilRegistryAuthority ; bka:dataClass bka:PersonalData ; bka:riskTier 2 ;
+  skos:prefLabel "đăng ký khai sinh (hộ tịch)"@vi .
+gov:RegisterPermanentResidence rdfs:subClassOf bka:Task ; bka:taskDomain gov:GovDomain ;
+  bka:requiresAuthority gov:ResidenceAuthority ; bka:dataClass bka:PersonalData ; bka:riskTier 2 ;
+  skos:prefLabel "đăng ký thường trú"@vi .
+gov:IssueHealthInsuranceCard rdfs:subClassOf bka:Task ; skos:prefLabel "cấp thẻ BHYT"@vi .
+gov:IssueChildHealthInsurance rdfs:subClassOf gov:IssueHealthInsuranceCard ; bka:taskDomain gov:GovDomain ;
+  bka:requiresAuthority gov:SocialInsuranceAuthority ; bka:dataClass bka:PersonalData ; bka:riskTier 1 ;
+  skos:prefLabel "cấp thẻ BHYT trẻ em dưới 6 tuổi"@vi .
+gov:NotifyCitizen rdfs:subClassOf bka:Task ; bka:taskDomain gov:GovDomain ;
+  bka:dataClass bka:PublicData ; bka:riskTier 1 ; skos:prefLabel "thông báo kết quả"@vi .
+
+gov:M_BirthLifeEvent a bka:Method ; bka:status "curated" ; bka:decomposes gov:BirthLifeEvent ;
+  bka:subtasks ( gov:RegisterBirth gov:RegisterPermanentResidence gov:IssueChildHealthInsurance gov:NotifyCitizen ) .
+
+# ---- Agents (descriptor ngữ nghĩa gắn với Agent Card / MCP server) ----
+gov:agent_hotich a bka:Agent ; bka:attestedBy bka:issuer_ndta ; rdfs:label "Tác tử Hộ tịch" ; bka:provides gov:RegisterBirth ;
+  bka:inDomain gov:GovDomain ; bka:hasAuthority gov:CivilRegistryAuthority ; bka:handlesDataClass bka:PersonalData ;
+  bka:trust 0.95 ; bka:cost 0.3 ; bka:protocol "local" .
+gov:agent_cutru a bka:Agent ; bka:attestedBy bka:issuer_ndta ; rdfs:label "Tác tử Cư trú" ; bka:provides gov:RegisterPermanentResidence ;
+  bka:inDomain gov:GovDomain ; bka:hasAuthority gov:ResidenceAuthority ; bka:handlesDataClass bka:PersonalData ;
+  bka:trust 0.93 ; bka:cost 0.3 ; bka:protocol "local" .
+# Plugin match: quảng bá năng lực tổng quát hơn yêu cầu
+gov:agent_bhxh a bka:Agent ; bka:attestedBy bka:issuer_ndta ; rdfs:label "Tác tử BHXH" ; bka:provides gov:IssueHealthInsuranceCard ;
+  bka:inDomain gov:GovDomain ; bka:hasAuthority gov:SocialInsuranceAuthority ; bka:handlesDataClass bka:PersonalData ;
+  bka:trust 0.92 ; bka:cost 0.4 ; bka:protocol "local" .
+# Exact match, rẻ hơn, nhưng KHÔNG có thẩm quyền -> bị cổng chính sách loại
+gov:agent_bhyt_thirdparty a bka:Agent ; rdfs:label "Tác tử BHYT bên thứ ba" ; bka:provides gov:IssueChildHealthInsurance ;
+  bka:inDomain gov:GovDomain ; bka:handlesDataClass bka:PersonalData ; bka:trust 0.70 ; bka:cost 0.05 ; bka:protocol "local" .
+gov:agent_notify a bka:Agent ; bka:attestedBy bka:issuer_ndta ; rdfs:label "Tác tử Thông báo" ; bka:provides gov:NotifyCitizen ;
+  bka:inDomain gov:GovDomain ; bka:handlesDataClass bka:PublicData ; bka:trust 0.9 ; bka:cost 0.1 ; bka:protocol "local" .
+
+gov:BirthLifeEvent skos:prefLabel "birth registration bundle"@en ; skos:altLabel "birth registration"@en , "register a birth"@en , "register my baby"@en , "newborn"@en .
+gov:RegisterBirth skos:prefLabel "register the birth (civil registry)"@en .
+gov:RegisterPermanentResidence skos:prefLabel "register permanent residence"@en .
+gov:IssueHealthInsuranceCard skos:prefLabel "issue a health-insurance card"@en .
+gov:IssueChildHealthInsurance skos:prefLabel "issue child health insurance (under 6)"@en .
+gov:NotifyCitizen skos:prefLabel "notify the citizen"@en .

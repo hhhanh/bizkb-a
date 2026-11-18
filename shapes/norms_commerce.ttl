@@ -1,0 +1,45 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+
+# Chuẩn tắc cấp kế hoạch cho Agentic Commerce (C1-C7). Minh họa - không phải quy định hiện hành.
+
+bka:C1_VerifiedMerchant a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C1: thanh toán cho người bán chưa đăng ký/xác minh" ;
+    sh:select """SELECT $this WHERE { $this bka:merchant ?mc . ?s bka:inPlan $this ; bka:taskType com:ExecutePayment .
+                 FILTER NOT EXISTS { ?mc com:verified true } }""" ] .
+
+bka:C2_MandateCap a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C2: số tiền vượt hạn mức ủy quyền (IntentMandate)" ;
+    sh:select """SELECT $this WHERE { $this bka:hasMandate ?m ; bka:amount ?amt . ?m a bka:IntentMandate ; bka:maxAmount ?cap .
+                 FILTER(?amt > ?cap) }""" ] .
+
+bka:C3_MandateCategory a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C3: danh mục hàng hóa nằm ngoài phạm vi ủy quyền" ;
+    sh:select """SELECT $this WHERE { $this bka:hasMandate ?m ; bka:goodsCategory ?c . ?m a bka:IntentMandate ; bka:allowedCategory ?any .
+                 FILTER NOT EXISTS { ?m bka:allowedCategory ?c } }""" ] .
+
+bka:C4_MandateExpiry a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C4: ủy quyền đã hết hạn" ;
+    sh:select """SELECT $this WHERE { $this bka:hasMandate ?m . ?m bka:expires ?e . FILTER(?e < NOW()) }""" ] .
+
+bka:C5_ProhibitedGoods a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C5: danh mục hàng hóa cấm giao dịch qua tác tử" ;
+    sh:select """SELECT $this WHERE { $this bka:goodsCategory ?c . ?c com:prohibitedForAgents true }""" ] .
+
+bka:C6_CrossBorderApproval a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C6: thanh toán xuyên biên giới bắt buộc có phê duyệt trực tiếp của người dùng" ;
+    sh:select """SELECT $this WHERE { $this bka:merchant ?mc . ?mc com:crossBorder true .
+                 ?s bka:inPlan $this ; bka:taskType com:ExecutePayment .
+                 FILTER NOT EXISTS { ?s bka:requiresHumanApproval true } }""" ] .
+
+bka:C7_DelegationNeedsMandate a sh:NodeShape ; sh:targetClass bka:Plan ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "C7: mua tự động (human-not-present) bắt buộc có IntentMandate" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType com:DelegatedPurchase .
+                 FILTER NOT EXISTS { $this bka:hasMandate ?m . ?m a bka:IntentMandate } }""" ] .

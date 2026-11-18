@@ -1,0 +1,61 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+bka:NormPrefixes a owl:Ontology ;
+  sh:declare [ sh:prefix "bka"  ; sh:namespace "https://ndta.gov.vn/ns/bizkb-a#"^^xsd:anyURI ] ,
+             [ sh:prefix "rdfs" ; sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI ] ,
+             [ sh:prefix "com"  ; sh:namespace "https://ndta.gov.vn/ns/acommerce#"^^xsd:anyURI ] .
+
+# N1 - Tác vụ phải là khái niệm hợp lệ trong ontology (chặn LLM "bịa" tác vụ)
+bka:N1_ValidTaskConcept a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N1: tác vụ không phải khái niệm hợp lệ trong ontology" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType ?t .
+                 FILTER NOT EXISTS { ?t rdfs:subClassOf+ bka:Task } }""" ] .
+
+# N2 - Thẩm quyền: tác tử được gán phải có thẩm quyền mà tác vụ yêu cầu
+bka:N2_Authority a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N2: tác tử được gán thiếu thẩm quyền pháp lý bắt buộc" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType ?t ; bka:boundAgent ?a . ?t bka:requiresAuthority ?auth .
+                 FILTER NOT EXISTS { ?a bka:hasAuthority ?auth } }""" ] .
+
+# N3 - Phân loại dữ liệu: tác tử phải được phép xử lý lớp dữ liệu của tác vụ
+bka:N3_DataClass a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N3: tác tử không được phép xử lý lớp dữ liệu của tác vụ" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType ?t ; bka:boundAgent ?a . ?t bka:dataClass ?dc .
+                 FILTER NOT EXISTS { ?a bka:handlesDataClass ?dc } }""" ] .
+
+# N4 - Thanh toán phải có căn cứ ủy quyền: bước xin ủy quyền đứng trước HOẶC ủy quyền cấp kế hoạch (mandate)
+bka:N4_MandateBeforePayment a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N4: thanh toán không có căn cứ ủy quyền (mandate)" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType com:ExecutePayment ; bka:inPlan ?p ; bka:order ?o .
+                 FILTER NOT EXISTS { ?m bka:inPlan ?p ; bka:taskType com:ObtainPaymentMandate ; bka:order ?o2 .
+                                     FILTER(?o2 < ?o) }
+                 FILTER NOT EXISTS { ?p bka:hasMandate ?md } }""" ] .
+
+# N5 - HITL: tác vụ rủi ro cấp >= 3 phải có phê duyệt của con người,
+#      trừ khi kế hoạch có IntentMandate hợp lệ (tính hợp lệ do C2-C4 kiểm)
+bka:N5_HumanInTheLoop a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N5: tác vụ rủi ro cao thiếu điểm phê duyệt của con người" ;
+    sh:select """SELECT $this WHERE { $this bka:taskType ?t ; bka:inPlan ?p . ?t bka:riskTier ?r . FILTER(?r >= 3)
+                 FILTER NOT EXISTS { $this bka:requiresHumanApproval true }
+                 FILTER NOT EXISTS { ?p bka:hasMandate ?m . ?m a bka:IntentMandate } }""" ] .
+
+# N6 - Chứng thực: tác tử được gán phải có descriptor do tổ chức tin cậy chứng thực
+bka:N6_Attestation a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N6: descriptor của tác tử chưa được tổ chức tin cậy chứng thực" ;
+    sh:select """SELECT $this WHERE { $this bka:boundAgent ?a .
+                 FILTER NOT EXISTS { ?a bka:attestedBy ?i . ?i a bka:TrustedIssuer } }""" ] .
+
+# N7 - Đình chỉ: tác tử được gán không được ở trạng thái đình chỉ (do bộ giám sát lúc chạy đặt)
+bka:N7_NotSuspended a sh:NodeShape ; sh:targetClass bka:PlanStep ;
+  sh:sparql [ sh:prefixes bka:NormPrefixes ;
+    sh:message "N7: tác tử được gán đang bị đình chỉ do hành vi không phù hợp lúc chạy" ;
+    sh:select """SELECT $this WHERE { $this bka:boundAgent ?a . ?a bka:suspended true }""" ] .

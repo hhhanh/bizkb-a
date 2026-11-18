@@ -1,0 +1,34 @@
+@prefix bka:  <https://ndta.gov.vn/ns/bizkb-a#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Hiệu ứng khai báo (E1–E4), kiểm tra trên KẾT QUẢ quan sát được của từng bước sau khi tác tử thực thi.
+# Khác với N1–N7 (kiểm kế hoạch TRƯỚC khi chạy), đây là kiểm soát phát hiện: hành vi đã xảy ra.
+
+bka:EffectPrefixes a owl:Ontology ;
+  sh:declare [ sh:prefix "bka" ; sh:namespace "https://ndta.gov.vn/ns/bizkb-a#"^^xsd:anyURI ] .
+
+# E1 - Không thu vượt số tiền được giao cho bước này
+bka:E1_NoOvercharge a sh:NodeShape ; sh:targetClass bka:Outcome ;
+  sh:sparql [ sh:prefixes bka:EffectPrefixes ;
+    sh:message "E1: số tiền thực thu vượt số tiền được ủy quyền cho bước" ;
+    sh:select """SELECT $this WHERE { $this bka:chargedAmount ?c ; bka:authorisedAmount ?a . FILTER(?c > ?a) }""" ] .
+
+# E2 - Không thu vượt hạn mức của ủy quyền (khi có IntentMandate)
+bka:E2_WithinMandateCap a sh:NodeShape ; sh:targetClass bka:Outcome ;
+  sh:sparql [ sh:prefixes bka:EffectPrefixes ;
+    sh:message "E2: số tiền thực thu vượt hạn mức ủy quyền" ;
+    sh:select """SELECT $this WHERE { $this bka:chargedAmount ?c ; bka:mandateCap ?cap . FILTER(?c > ?cap) }""" ] .
+
+# E3 - Không trả về trường dữ liệu không được giao cho tác tử ở bước này
+bka:E3_NoUndisclosedData a sh:NodeShape ; sh:targetClass bka:Outcome ;
+  sh:sparql [ sh:prefixes bka:EffectPrefixes ;
+    sh:message "E3: tác tử trả về dữ liệu không được giao cho bước này" ;
+    sh:select """SELECT $this WHERE { $this bka:returnedField ?f . FILTER NOT EXISTS { $this bka:disclosedField ?f } }""" ] .
+
+# E4 - Báo hoàn thành thì phải có mã tham chiếu kiểm chứng được
+bka:E4_CompletionHasReference a sh:NodeShape ; sh:targetClass bka:Outcome ;
+  sh:sparql [ sh:prefixes bka:EffectPrefixes ;
+    sh:message "E4: báo hoàn thành nhưng không có mã tham chiếu giao dịch" ;
+    sh:select """SELECT $this WHERE { $this bka:outcomeStatus "completed" . FILTER NOT EXISTS { $this bka:outcomeRef ?r } }""" ] .

@@ -1,0 +1,303 @@
+{
+ "descriptor": {
+  "F1_label_spoof": {
+   "target_tasks": [
+    "com:ExecutePayment"
+   ],
+   "exposed_steps": 160,
+   "bizkba": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b2_similarity": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b0_blind": {
+    "captured": 0,
+    "rate": 0.0
+   }
+  },
+  "F2_issuer_scope": {
+   "target_tasks": [
+    "com:ExecutePayment",
+    "com:ObtainPaymentMandate",
+    "com:ExecuteRefund"
+   ],
+   "exposed_steps": 250,
+   "bizkba": {
+    "captured": 250,
+    "rate": 1.0
+   },
+   "b2_similarity": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b0_blind": {
+    "captured": 90,
+    "rate": 0.36
+   }
+  },
+  "F3_root_overclaim": {
+   "target_tasks": [
+    "com:SearchOffers",
+    "com:VerifyMerchant",
+    "com:ExecutePayment",
+    "com:ArrangeDelivery",
+    "com:IssueEInvoice",
+    "gov:RegisterBirth",
+    "gov:RegisterPermanentResidence",
+    "gov:IssueChildHealthInsurance",
+    "gov:NotifyCitizen",
+    "com:ObtainPaymentMandate",
+    "com:RetrieveOrderHistory",
+    "com:ArrangeReturnPickup",
+    "com:ExecuteRefund"
+   ],
+   "exposed_steps": 1172,
+   "bizkba": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b2_similarity": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b0_blind": {
+    "captured": 1012,
+    "rate": 0.863
+   }
+  },
+  "F4_revoked_key": {
+   "target_tasks": [
+    "com:ExecutePayment",
+    "com:ObtainPaymentMandate",
+    "com:ExecuteRefund"
+   ],
+   "exposed_steps": 250,
+   "bizkba": {
+    "captured": 250,
+    "rate": 1.0
+   },
+   "b2_similarity": {
+    "captured": 0,
+    "rate": 0.0
+   },
+   "b0_blind": {
+    "captured": 90,
+    "rate": 0.36
+   }
+  }
+ },
+ "reserialisation": {
+  "v0.4_bytes": {
+   "legitimate_agent_admitted": false,
+   "payment_bound_to": "agent_wallet"
+  },
+  "v0.5_canonical": {
+   "legitimate_agent_admitted": true,
+   "payment_bound_to": "agent_wallet_b"
+  }
+ },
+ "runtime": {
+  "stream_length": 40,
+  "F6_overcharge": {
+   "v0.4_no_enforcement": {
+    "trap_executions": 58,
+    "deviant_executions": 58,
+    "trap_suspended": false,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   },
+   "v0.5_monitor": {
+    "trap_executions": 1,
+    "deviant_executions": 1,
+    "trap_suspended": true,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "halted-nonconformant": 1,
+     "completed": 39
+    }
+   },
+   "v0.5_monitor_probe": {
+    "trap_executions": 0,
+    "deviant_executions": 0,
+    "trap_suspended": true,
+    "suspended_by_probe": true,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   }
+  },
+  "F7_exfiltrate": {
+   "v0.4_no_enforcement": {
+    "trap_executions": 40,
+    "deviant_executions": 40,
+    "trap_suspended": false,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   },
+   "v0.5_monitor": {
+    "trap_executions": 1,
+    "deviant_executions": 1,
+    "trap_suspended": true,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "halted-nonconformant": 1,
+     "completed": 39
+    }
+   },
+   "v0.5_monitor_probe": {
+    "trap_executions": 0,
+    "deviant_executions": 0,
+    "trap_suspended": true,
+    "suspended_by_probe": true,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   }
+  },
+  "F8_phantom": {
+   "v0.4_no_enforcement": {
+    "trap_executions": 58,
+    "deviant_executions": 58,
+    "trap_suspended": false,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   },
+   "v0.5_monitor": {
+    "trap_executions": 1,
+    "deviant_executions": 1,
+    "trap_suspended": true,
+    "suspended_by_probe": false,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "halted-nonconformant": 1,
+     "completed": 39
+    }
+   },
+   "v0.5_monitor_probe": {
+    "trap_executions": 0,
+    "deviant_executions": 0,
+    "trap_suspended": true,
+    "suspended_by_probe": true,
+    "honest_agents_flagged": [],
+    "statuses": {
+     "completed": 40
+    }
+   }
+  }
+ },
+ "task_profile": {
+  "SearchOffers": 160,
+  "VerifyMerchant": 160,
+  "ExecutePayment": 160,
+  "ArrangeDelivery": 160,
+  "IssueEInvoice": 174,
+  "RegisterBirth": 60,
+  "RegisterPermanentResidence": 60,
+  "IssueChildHealthInsurance": 60,
+  "NotifyCitizen": 60,
+  "ObtainPaymentMandate": 76,
+  "RetrieveOrderHistory": 14,
+  "ArrangeReturnPickup": 14,
+  "ExecuteRefund": 14
+ },
+ "descriptor_inadmissible": {
+  "F1_label_spoof": {
+   "exposed": 160,
+   "bizkba": {
+    "inadmissible": 0,
+    "rate": 0.0,
+    "of_which_new_trap": 0
+   },
+   "b2": {
+    "inadmissible": 160,
+    "rate": 1.0,
+    "of_which_new_trap": 0
+   },
+   "b0": {
+    "inadmissible": 160,
+    "rate": 1.0,
+    "of_which_new_trap": 0
+   }
+  },
+  "F2_issuer_scope": {
+   "exposed": 250,
+   "bizkba": {
+    "inadmissible": 250,
+    "rate": 1.0,
+    "of_which_new_trap": 250
+   },
+   "b2": {
+    "inadmissible": 160,
+    "rate": 0.64,
+    "of_which_new_trap": 0
+   },
+   "b0": {
+    "inadmissible": 250,
+    "rate": 1.0,
+    "of_which_new_trap": 90
+   }
+  },
+  "F3_root_overclaim": {
+   "exposed": 1172,
+   "bizkba": {
+    "inadmissible": 0,
+    "rate": 0.0,
+    "of_which_new_trap": 0
+   },
+   "b2": {
+    "inadmissible": 220,
+    "rate": 0.188,
+    "of_which_new_trap": 0
+   },
+   "b0": {
+    "inadmissible": 1172,
+    "rate": 1.0,
+    "of_which_new_trap": 1012
+   },
+   "F3_admitted_tasks": 7,
+   "F3_margins": [
+    0.026,
+    0.028,
+    0.029,
+    0.03,
+    0.03,
+    0.064,
+    0.144
+   ]
+  },
+  "F4_revoked_key": {
+   "exposed": 250,
+   "bizkba": {
+    "inadmissible": 250,
+    "rate": 1.0,
+    "of_which_new_trap": 250
+   },
+   "b2": {
+    "inadmissible": 160,
+    "rate": 0.64,
+    "of_which_new_trap": 0
+   },
+   "b0": {
+    "inadmissible": 250,
+    "rate": 1.0,
+    "of_which_new_trap": 90
+   }
+  }
+ }
+}

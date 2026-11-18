@@ -1,0 +1,9 @@
+services:
+  bizkb-a:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      # Bật LLM thật: bỏ chú thích 2 dòng dưới và truyền khóa từ môi trường
+      # BKA_USE_LLM: "1"
+      # ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      BKA_LLM_MODEL: "claude-sonnet-4-6"
